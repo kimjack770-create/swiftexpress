@@ -42,26 +42,7 @@ class ShipmentService {
 
     if (!targetNorm) return null;
 
-    // 1. Check Local Storage FIRST for instant zero-latency lookup
-    try {
-      const localShipments = dbEngine.getCollection('shipments');
-      if (Array.isArray(localShipments) && localShipments.length > 0) {
-        // Exact normalized match
-        let match = localShipments.find(s => s && s.tracking_number && normalizeCode(s.tracking_number) === targetNorm);
-        if (match) return match;
-
-        // Substring / partial match
-        match = localShipments.find(s => s && s.tracking_number && (
-          normalizeCode(s.tracking_number).includes(targetNorm) || 
-          targetNorm.includes(normalizeCode(s.tracking_number))
-        ));
-        if (match) return match;
-      }
-    } catch (e) {
-      console.warn('Local storage lookup notice:', e);
-    }
-
-    // 2. Check Supabase Cloud Backend SECOND
+    // 1. Check Supabase Cloud Backend FIRST
     if (dbEngine.isRealSupabase) {
       try {
         // Exact case-insensitive match
@@ -83,6 +64,25 @@ class ShipmentService {
       } catch (err) {
         console.warn('Real Supabase lookup notice:', err.message);
       }
+    }
+
+    // 2. Fall back to Local Storage for instant offline/demo lookup
+    try {
+      const localShipments = dbEngine.getCollection('shipments');
+      if (Array.isArray(localShipments) && localShipments.length > 0) {
+        // Exact normalized match
+        let match = localShipments.find(s => s && s.tracking_number && normalizeCode(s.tracking_number) === targetNorm);
+        if (match) return match;
+
+        // Substring / partial match
+        match = localShipments.find(s => s && s.tracking_number && (
+          normalizeCode(s.tracking_number).includes(targetNorm) || 
+          targetNorm.includes(normalizeCode(s.tracking_number))
+        ));
+        if (match) return match;
+      }
+    } catch (e) {
+      console.warn('Local storage lookup notice:', e);
     }
 
     return null;
