@@ -658,12 +658,31 @@
       // Sidebar Toggle
       const toggleSidebar = () => {
         const sidebar = document.getElementById('adminSidebar');
-        sidebar.classList.toggle('collapsed');
-        sidebar.classList.toggle('mobile-open');
+        const isOpen = sidebar.classList.toggle('mobile-open');
+        sidebar.classList.toggle('collapsed', false);
+        document.body.classList.toggle('nav-open', isOpen);
+      };
+
+      const closeSidebar = () => {
+        const sidebar = document.getElementById('adminSidebar');
+        sidebar.classList.remove('mobile-open');
+        document.body.classList.remove('nav-open');
       };
 
       document.getElementById('toggleSidebarBtn').onclick = toggleSidebar;
       document.getElementById('mobileSidebarToggle').onclick = toggleSidebar;
+
+      document.querySelectorAll('#adminSidebar .sidebar-item').forEach(item => {
+        item.onclick = () => closeSidebar();
+      });
+
+      document.addEventListener('click', (event) => {
+        const sidebar = document.getElementById('adminSidebar');
+        const toggle = document.getElementById('mobileSidebarToggle');
+        if (sidebar.classList.contains('mobile-open') && !sidebar.contains(event.target) && !toggle.contains(event.target)) {
+          closeSidebar();
+        }
+      });
 
       // Tab switcher
       const sidebarItems = document.querySelectorAll('#adminSidebar .sidebar-item[data-tab]');
