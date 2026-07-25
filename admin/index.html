@@ -747,7 +747,7 @@
           // Show Success Modal with Tracking Code
           const successModal = document.getElementById('shipmentSuccessModal');
           document.getElementById('succTrackingCode').textContent = created.tracking_number;
-          document.getElementById('trackPackageDirectBtn').href = `/tracking.html?tracking=${encodeURIComponent(created.tracking_number)}`;
+          document.getElementById('trackPackageDirectBtn').href = `../tracking.html?tracking=${encodeURIComponent(created.tracking_number)}`;
           
           document.getElementById('copyTrackingCodeBtn').onclick = () => {
             navigator.clipboard.writeText(created.tracking_number);
