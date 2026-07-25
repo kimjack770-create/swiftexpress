@@ -92,7 +92,12 @@
     <!-- Main Console Content -->
     <main class="dashboard-main">
       <header class="dashboard-topbar">
-        <h3 id="admTabHeading">Console Overview</h3>
+        <div class="topbar-title-wrap">
+          <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Open admin menu" title="Open menu">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h3 id="admTabHeading">Console Overview</h3>
+        </div>
 
         <div class="topbar-actions">
           <button class="btn btn-accent btn-sm" id="quickNewShipmentBtn"><i class="fas fa-plus"></i> Create
@@ -651,11 +656,14 @@
       };
 
       // Sidebar Toggle
-      document.getElementById('toggleSidebarBtn').onclick = () => {
+      const toggleSidebar = () => {
         const sidebar = document.getElementById('adminSidebar');
         sidebar.classList.toggle('collapsed');
         sidebar.classList.toggle('mobile-open');
       };
+
+      document.getElementById('toggleSidebarBtn').onclick = toggleSidebar;
+      document.getElementById('mobileSidebarToggle').onclick = toggleSidebar;
 
       // Tab switcher
       const sidebarItems = document.querySelectorAll('#adminSidebar .sidebar-item[data-tab]');
