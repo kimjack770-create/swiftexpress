@@ -18,7 +18,17 @@ class AuthService {
       try {
         const { data, error } = await dbEngine.client.auth.signInWithPassword({ email, password });
         if (!error && data?.user) {
-          user = data.user;
+          const { data: profileData, error: profileError } = await dbEngine.client
+            .from('profiles')
+            .select('full_name, role')
+            .eq('id', data.user.id)
+            .single();
+
+          user = {
+            ...data.user,
+            full_name: profileData?.full_name || data.user.email?.split('@')[0] || 'Admin',
+            role: profileData?.role || 'Customer'
+          };
         }
       } catch (err) {
         console.warn('Real Supabase Auth login notice:', err.message);

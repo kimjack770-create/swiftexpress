@@ -296,7 +296,7 @@ BEGIN
 END $$;
 
 -- --------------------------------------------------------
--- 11. ROW LEVEL SECURITY (RLS) POLICIES (OPEN FOR WEB APP)
+-- 11. ROW LEVEL SECURITY (RLS) POLICIES
 -- --------------------------------------------------------
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shipments ENABLE ROW LEVEL SECURITY;
@@ -308,32 +308,108 @@ ALTER TABLE public.vehicles ENABLE ROW LEVEL SECURITY;
 
 DO $$ 
 BEGIN
-    -- Shipments
+    -- Profiles: users can read their own profile; admins can read all profiles.
+    DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+    DROP POLICY IF EXISTS "Admins can manage profiles" ON public.profiles;
+    CREATE POLICY "Users can view own profile" ON public.profiles
+      FOR SELECT USING (auth.uid() = id);
+    CREATE POLICY "Admins can manage profiles" ON public.profiles
+      FOR ALL USING (
+        EXISTS (
+          SELECT 1 FROM public.profiles p
+          WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      )
+      WITH CHECK (
+        EXISTS (
+          SELECT 1 FROM public.profiles p
+          WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      );
+
+    -- Shipments: public read for customers/tracking; writes only by authenticated admins.
     DROP POLICY IF EXISTS "Public shipments read" ON public.shipments;
-    DROP POLICY IF EXISTS "Allow full access shipments" ON public.shipments;
-    CREATE POLICY "Allow full access shipments" ON public.shipments FOR ALL USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "Allow authenticated admin writes shipments" ON public.shipments;
+    DROP POLICY IF EXISTS "Allow authenticated admin updates shipments" ON public.shipments;
+    CREATE POLICY "Public shipments read" ON public.shipments
+      FOR SELECT USING (true);
+    CREATE POLICY "Allow authenticated admin writes shipments" ON public.shipments
+      FOR INSERT WITH CHECK (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      );
+    CREATE POLICY "Allow authenticated admin updates shipments" ON public.shipments
+      FOR UPDATE USING (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      )
+      WITH CHECK (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      );
 
-    -- Tracking Events
+    -- Tracking events: public read; writes only by authenticated admins.
     DROP POLICY IF EXISTS "Public tracking events read" ON public.tracking_events;
-    DROP POLICY IF EXISTS "Allow full access tracking_events" ON public.tracking_events;
-    CREATE POLICY "Allow full access tracking_events" ON public.tracking_events FOR ALL USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "Allow authenticated admin writes tracking_events" ON public.tracking_events;
+    DROP POLICY IF EXISTS "Allow authenticated admin updates tracking_events" ON public.tracking_events;
+    CREATE POLICY "Public tracking events read" ON public.tracking_events
+      FOR SELECT USING (true);
+    CREATE POLICY "Allow authenticated admin writes tracking_events" ON public.tracking_events
+      FOR INSERT WITH CHECK (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      );
+    CREATE POLICY "Allow authenticated admin updates tracking_events" ON public.tracking_events
+      FOR UPDATE USING (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      )
+      WITH CHECK (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      );
 
-    -- Quotes
+    -- Quotes: allow public insert/read for quote requests.
     DROP POLICY IF EXISTS "Public quotes insert" ON public.quotes;
     DROP POLICY IF EXISTS "Allow full access quotes" ON public.quotes;
-    CREATE POLICY "Allow full access quotes" ON public.quotes FOR ALL USING (true) WITH CHECK (true);
+    CREATE POLICY "Allow public quotes access" ON public.quotes FOR ALL USING (true) WITH CHECK (true);
 
-    -- Profiles
-    DROP POLICY IF EXISTS "Users manage profile" ON public.profiles;
-    DROP POLICY IF EXISTS "Allow full access profiles" ON public.profiles;
-    CREATE POLICY "Allow full access profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
-
-    -- Drivers & Vehicles
+    -- Drivers & Vehicles: allow public read, admin write.
     DROP POLICY IF EXISTS "Allow full access drivers" ON public.drivers;
-    CREATE POLICY "Allow full access drivers" ON public.drivers FOR ALL USING (true) WITH CHECK (true);
+    CREATE POLICY "Allow public drivers read" ON public.drivers
+      FOR SELECT USING (true);
+    CREATE POLICY "Allow admin drivers write" ON public.drivers
+      FOR ALL USING (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      )
+      WITH CHECK (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      );
 
     DROP POLICY IF EXISTS "Allow full access vehicles" ON public.vehicles;
-    CREATE POLICY "Allow full access vehicles" ON public.vehicles FOR ALL USING (true) WITH CHECK (true);
+    CREATE POLICY "Allow public vehicles read" ON public.vehicles
+      FOR SELECT USING (true);
+    CREATE POLICY "Allow admin vehicles write" ON public.vehicles
+      FOR ALL USING (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      )
+      WITH CHECK (
+        auth.role() = 'authenticated' AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
+        )
+      );
 END $$;
 
 -- --------------------------------------------------------

@@ -736,7 +736,7 @@
         try {
           const trackingCode = document.getElementById('nsTrackingCode').value.trim();
           const data = {
-            tracking_number: trackingCode,
+            ...(trackingCode ? { tracking_number: trackingCode } : {}),
             sender_name: document.getElementById('nsSenderName').value,
             sender_email: document.getElementById('nsSenderEmail').value,
             sender_phone: document.getElementById('nsSenderPhone').value,
@@ -768,7 +768,7 @@
           const created = await shipmentService.createShipment(data);
           createModal.classList.remove('active');
           document.getElementById('newShipmentForm').reset();
-          await refreshShipmentsTable();
+          await refreshShipmentsTable(created);
 
           // Show Success Modal with Tracking Code
           const successModal = document.getElementById('shipmentSuccessModal');
@@ -830,11 +830,14 @@
       };
     }
 
-    async function refreshShipmentsTable() {
+    async function refreshShipmentsTable(prependShipment = null) {
       const shipments = await shipmentService.getAllShipments();
+      const mergedShipments = prependShipment
+        ? [prependShipment, ...shipments.filter(s => s.id !== prependShipment.id && s.tracking_number !== prependShipment.tracking_number)]
+        : shipments;
       const tbody = document.getElementById('admShipmentsTableBody');
 
-      tbody.innerHTML = shipments.map(s => `
+      tbody.innerHTML = mergedShipments.map(s => `
         <tr>
           <td>
             <div class="font-bold text-primary">${s.tracking_number}</div>
@@ -878,7 +881,7 @@
 
       document.querySelectorAll('.print-label-btn').forEach(btn => {
         btn.onclick = () => {
-          const sh = shipments.find(item => item.id === btn.getAttribute('data-id'));
+          const sh = mergedShipments.find(item => item.id === btn.getAttribute('data-id'));
           if (sh) generatePrintableShippingLabel(sh);
         };
       });

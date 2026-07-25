@@ -10,6 +10,12 @@ function normalizeCode(str) {
   return str.toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 }
 
+function generateFallbackTrackingNumber(prefix = 'SEL') {
+  const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const randomPart = Math.floor(100000 + Math.random() * 900000).toString();
+  return `${prefix}-${datePart}-${randomPart}`;
+}
+
 class ShipmentService {
   async getAllShipments() {
     const localShipments = dbEngine.getCollection('shipments');
@@ -104,11 +110,12 @@ class ShipmentService {
   }
 
   async createShipment(shipmentData) {
-    const trackingNumber = shipmentData.tracking_number || null;
+    const trackingNumber = (shipmentData.tracking_number || '').toString().trim();
+    const resolvedTrackingNumber = trackingNumber || generateFallbackTrackingNumber('SEL');
 
     const localShipment = {
       id: "sh-" + Date.now(),
-      tracking_number: trackingNumber,
+      tracking_number: resolvedTrackingNumber,
       status: shipmentData.status || "In Transit",
       payment_status: shipmentData.payment_status || "Paid",
       company_name: shipmentData.company_name || "Swift Express Logistics",
@@ -171,7 +178,7 @@ class ShipmentService {
 
     // Fallback: save locally if Supabase is unavailable
     const shipments = dbEngine.getCollection('shipments');
-    const existingIdx = shipments.findIndex(s => normalizeCode(s.tracking_number) === normalizeCode(trackingNumber));
+    const existingIdx = shipments.findIndex(s => normalizeCode(s.tracking_number) === normalizeCode(resolvedTrackingNumber));
     if (existingIdx !== -1) {
       shipments[existingIdx] = localShipment;
     } else {
