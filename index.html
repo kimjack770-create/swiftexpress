@@ -8,8 +8,8 @@
   <meta name="robots" content="index,follow">
   <meta name="theme-color" content="#0A2F6D">
   <link rel="canonical" href="https://www.swiftexpress.com/">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
   <meta property="og:title" content="Swift Express Logistics">
   <meta property="og:description" content="Global courier and freight services with real-time tracking and instant quote support.">
   <meta property="og:type" content="website">
@@ -20,9 +20,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- CSS Dependencies -->
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/responsive.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -50,13 +50,13 @@
             </div>
           </form>
           <div style="font-size: 0.85rem; margin-top: 0.75rem; color: rgba(255,255,255,0.8);">
-            Try sample tracking numbers: <a href="/tracking.html?tracking=SEL-20260723-884920" style="color: #FF8C00; text-decoration: underline;">SEL-20260723-884920</a> or <a href="/tracking.html?tracking=SEL-20260723-339102" style="color: #FF8C00; text-decoration: underline;">SEL-20260723-339102</a>
+            Try sample tracking numbers: <a href="./tracking.html?tracking=SEL-20260723-884920" style="color: #FF8C00; text-decoration: underline;">SEL-20260723-884920</a> or <a href="./tracking.html?tracking=SEL-20260723-339102" style="color: #FF8C00; text-decoration: underline;">SEL-20260723-339102</a>
           </div>
         </div>
 
         <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-          <a href="/quote.html" class="btn btn-primary btn-lg"><i class="fas fa-calculator"></i> Get a Free Quote</a>
-          <a href="/services.html" class="btn btn-outline btn-lg" style="color: white; border-color: white;"><i class="fas fa-boxes"></i> Our Services</a>
+          <a href="./quote.html" class="btn btn-primary btn-lg"><i class="fas fa-calculator"></i> Get a Free Quote</a>
+          <a href="./services.html" class="btn btn-outline btn-lg" style="color: white; border-color: white;"><i class="fas fa-boxes"></i> Our Services</a>
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@
 
       <div class="grid grid-2">
         <div class="card" style="padding: 0; overflow: hidden;">
-          <img src="/images/images.jfif" alt="Air cargo and airplane logistics" style="width: 100%; height: 280px; object-fit: cover; display: block;">
+          <img src="./images/images.jfif" alt="Air cargo and airplane logistics" style="width: 100%; height: 280px; object-fit: cover; display: block;">
           <div style="padding: 1.5rem;">
             <h3 style="margin-bottom: 0.5rem;">Ocean Freight Reliability</h3>
             <p class="text-muted" style="margin: 0;">Trusted sea freight and container shipping for large-scale cargo across global trade lanes</p>
@@ -81,7 +81,7 @@
         </div>
 
         <div class="card" style="padding: 0; overflow: hidden;">
-          <img src="/images/images (1).jfif" alt="Cargo ship logistics" style="width: 100%; height: 280px; object-fit: cover; display: block;">
+          <img src="./images/images (1).jfif" alt="Cargo ship logistics" style="width: 100%; height: 280px; object-fit: cover; display: block;">
           <div style="padding: 1.5rem;">
             <h3 style="margin-bottom: 0.5rem;">Air Cargo Precision</h3>
             <p class="text-muted" style="margin: 0;">Rapid domestic and international air freight with live tracking and priority handling..</p>
@@ -154,7 +154,7 @@
           <span class="section-tag">OUR SERVICES</span>
           <h2 class="section-title" style="margin-bottom: 0;">Comprehensive Supply Chain Solutions</h2>
         </div>
-        <a href="/services.html" class="btn btn-outline">View All Services <i class="fas fa-arrow-right"></i></a>
+        <a href="./services.html" class="btn btn-outline">View All Services <i class="fas fa-arrow-right"></i></a>
       </div>
 
       <div class="grid grid-3" id="homeServicesGrid">
@@ -181,9 +181,9 @@
 
   <!-- Scripts -->
   <script type="module">
-    import { renderHeader } from '/js/components/header.js';
-    import { renderFooter } from '/js/components/footer.js';
-    import { cmsService } from '/js/services/cmsService.js';
+    import { renderHeader } from './js/components/header.js';
+    import { renderFooter } from './js/components/footer.js';
+    import { cmsService } from './js/services/cmsService.js';
 
     document.addEventListener('DOMContentLoaded', async () => {
       renderHeader();
@@ -214,7 +214,7 @@
           <div class="service-icon"><i class="fas ${s.icon}"></i></div>
           <h3>${s.title}</h3>
           <p class="text-muted" style="margin: 0.75rem 0 1.25rem 0;">${s.desc}</p>
-          <a href="/service-details.html?service=${s.link}" class="font-bold text-primary">Explore Service <i class="fas fa-chevron-right"></i></a>
+          <a href="./service-details.html?service=${s.link}" class="font-bold text-primary">Explore Service <i class="fas fa-chevron-right"></i></a>
         </div>
       `).join('');
 

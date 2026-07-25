@@ -6,12 +6,15 @@ export function renderFooter() {
   const footerContainer = document.getElementById('footer-container');
   if (!footerContainer) return;
 
+  const siteRootUrl = new URL('../../', import.meta.url);
+  const buildSiteHref = (path) => new URL(path, siteRootUrl).pathname;
+
   footerContainer.innerHTML = `
     <footer class="footer">
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <a href="/index.html" class="brand-logo" style="color: #ffffff;">
+            <a href="${buildSiteHref('index.html')}" class="brand-logo" style="color: #ffffff;">
               <div class="brand-icon"><i class="fas fa-shipping-fast"></i></div>
               SWIFT<span style="color: var(--accent);">EXPRESS</span>
             </a>
@@ -27,24 +30,24 @@ export function renderFooter() {
           <div>
             <h4 class="footer-title">Quick Links</h4>
             <ul class="footer-links">
-              <li><a href="/about.html">About Swift Express</a></li>
-              <li><a href="/services.html">Our Courier Services</a></li>
-              <li><a href="/tracking.html">Live Package Tracking</a></li>
-              <li><a href="/pricing.html">Shipping Rate Calculator</a></li>
-              <li><a href="/careers.html">Careers & Opportunities</a></li>
-              <li><a href="/blog.html">Latest News & Blog</a></li>
+              <li><a href="${buildSiteHref('about.html')}">About Swift Express</a></li>
+              <li><a href="${buildSiteHref('services.html')}">Our Courier Services</a></li>
+              <li><a href="${buildSiteHref('tracking.html')}">Live Package Tracking</a></li>
+              <li><a href="${buildSiteHref('pricing.html')}">Shipping Rate Calculator</a></li>
+              <li><a href="${buildSiteHref('careers.html')}">Careers & Opportunities</a></li>
+              <li><a href="${buildSiteHref('blog.html')}">Latest News & Blog</a></li>
             </ul>
           </div>
 
           <div>
             <h4 class="footer-title">Logistics Services</h4>
             <ul class="footer-links">
-              <li><a href="/service-details.html?service=air-freight">Air Freight Express</a></li>
-              <li><a href="/service-details.html?service=sea-freight">Ocean Sea Cargo</a></li>
-              <li><a href="/service-details.html?service=road-freight">Road & Truck Freight</a></li>
-              <li><a href="/service-details.html?service=customs">Customs Clearance</a></li>
-              <li><a href="/service-details.html?service=warehousing">Global Warehousing</a></li>
-              <li><a href="/service-details.html?service=fulfillment">E-Commerce Fulfillment</a></li>
+              <li><a href="${buildSiteHref('service-details.html')}?service=air-freight">Air Freight Express</a></li>
+              <li><a href="${buildSiteHref('service-details.html')}?service=sea-freight">Ocean Sea Cargo</a></li>
+              <li><a href="${buildSiteHref('service-details.html')}?service=road-freight">Road & Truck Freight</a></li>
+              <li><a href="${buildSiteHref('service-details.html')}?service=customs">Customs Clearance</a></li>
+              <li><a href="${buildSiteHref('service-details.html')}?service=warehousing">Global Warehousing</a></li>
+              <li><a href="${buildSiteHref('service-details.html')}?service=fulfillment">E-Commerce Fulfillment</a></li>
             </ul>
           </div>
 
@@ -63,9 +66,9 @@ Chattanooga, TN 37421 USA</li>
         <div class="footer-bottom">
           <div>&copy; 2026 Swift Express Logistics Inc. All rights reserved.</div>
           <div style="display: flex; gap: 1.5rem;">
-            <a href="/privacy.html">Privacy Policy</a>
-            <a href="/terms.html">Terms & Conditions</a>
-            <a href="/admin/index.html">Admin Portal</a>
+            <a href="${buildSiteHref('privacy.html')}">Privacy Policy</a>
+            <a href="${buildSiteHref('terms.html')}">Terms & Conditions</a>
+            <a href="${buildSiteHref('admin/index.html')}">Admin Portal</a>
           </div>
         </div>
       </div>

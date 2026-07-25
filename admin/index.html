@@ -9,11 +9,11 @@
   <!-- Supabase JS Client SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/dashboard.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/print.css">
-  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/print.css">
+  <link rel="stylesheet" href="../css/responsive.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -55,7 +55,7 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="adminSidebar">
       <div class="sidebar-header">
-        <a href="/index.html" class="brand-logo" style="font-size: 1.1rem;">
+        <a href="../index.html" class="brand-logo" style="font-size: 1.1rem;">
           <div class="brand-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i
               class="fas fa-shipping-fast"></i></div>
           SWIFT<span>EXPRESS</span>
@@ -579,15 +579,15 @@
 
   <!-- Scripts -->
   <script type="module">
-    import { authService } from '/js/services/authService.js';
-    import { shipmentService } from '/js/services/shipmentService.js';
-    import { quoteService } from '/js/services/quoteService.js';
-    import { driverService } from '/js/services/driverService.js';
-    import { cmsService } from '/js/services/cmsService.js';
-    import { getStatusBadge } from '/js/utils/formatters.js';
-    import { showToast } from '/js/utils/toast.js';
-    import { generateTrackingNumber } from '/js/utils/trackingGenerator.js';
-    import { generatePrintableShippingLabel } from '/js/utils/pdfLabelGenerator.js';
+    import { authService } from '../js/services/authService.js';
+    import { shipmentService } from '../js/services/shipmentService.js';
+    import { quoteService } from '../js/services/quoteService.js';
+    import { driverService } from '../js/services/driverService.js';
+    import { cmsService } from '../js/services/cmsService.js';
+    import { getStatusBadge } from '../js/utils/formatters.js';
+    import { showToast } from '../js/utils/toast.js';
+    import { generateTrackingNumber } from '../js/utils/trackingGenerator.js';
+    import { generatePrintableShippingLabel } from '../js/utils/pdfLabelGenerator.js';
 
     const countriesList = [
       "United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Japan", "China",

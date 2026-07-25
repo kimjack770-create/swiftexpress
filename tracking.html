@@ -8,18 +8,18 @@
   <meta name="robots" content="index,follow">
   <meta name="theme-color" content="#0A2F6D">
   <link rel="canonical" href="https://www.swiftexpress.com/tracking.html">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
   <meta property="og:title" content="Track Your Swift Express Shipment">
   <meta property="og:description" content="Track Swift Express shipments in real time with package status, timeline history, and delivery estimates.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.swiftexpress.com/tracking.html">
   <meta property="twitter:card" content="summary_large_image">
   
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/print.css">
-  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/print.css">
+  <link rel="stylesheet" href="./css/responsive.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -58,7 +58,7 @@
         <i class="fas fa-exclamation-triangle text-accent" style="font-size: 3.5rem; margin-bottom: 1.5rem;"></i>
         <h2>Tracking number not found.</h2>
         <p class="text-muted" style="margin: 0.75rem 0 1.5rem 0;">Please check your tracking number and try again, or contact customer support.</p>
-        <a href="/contact.html" class="btn btn-outline">Contact Customer Support</a>
+        <a href="./contact.html" class="btn btn-outline">Contact Customer Support</a>
       </div>
 
       <!-- Active Shipment Details Container -->
@@ -177,12 +177,12 @@
 
   <!-- Scripts -->
   <script type="module">
-    import { renderHeader } from '/js/components/header.js';
-    import { renderFooter } from '/js/components/footer.js';
-    import { shipmentService } from '/js/services/shipmentService.js';
-    import { getStatusBadge, formatDate } from '/js/utils/formatters.js';
-    import { renderPackageMap } from '/js/components/map.js';
-    import { generatePrintableShippingLabel } from '/js/utils/pdfLabelGenerator.js';
+    import { renderHeader } from './js/components/header.js';
+    import { renderFooter } from './js/components/footer.js';
+    import { shipmentService } from './js/services/shipmentService.js';
+    import { getStatusBadge, formatDate } from './js/utils/formatters.js';
+    import { renderPackageMap } from './js/components/map.js';
+    import { generatePrintableShippingLabel } from './js/utils/pdfLabelGenerator.js';
 
     let currentActiveShipment = null;
 
