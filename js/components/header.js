@@ -39,11 +39,7 @@ export function renderHeader() {
             <i class="fas fa-moon"></i>
           </button>
 
-          ${currentUser ? `` : `
-            <a href="${buildSiteHref('quote.html')}" class="btn btn-accent btn-sm">Book Shipment</a>
-          `}
-
-          <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" aria-expanded="false">
             <i class="fas fa-bars"></i>
           </button>
         </div>
@@ -67,7 +63,34 @@ export function renderHeader() {
   // Mobile Menu Drawer Listener
   const mobileBtn = document.getElementById('mobileMenuBtn');
   const navMenu = document.getElementById('navMenu');
-  mobileBtn.onclick = () => {
-    navMenu.classList.toggle('open');
+
+  const closeMenu = () => {
+    navMenu.classList.remove('open');
+    mobileBtn.setAttribute('aria-expanded', 'false');
+    mobileBtn.innerHTML = '<i class="fas fa-bars"></i>';
   };
+
+  const openMenu = () => {
+    navMenu.classList.add('open');
+    mobileBtn.setAttribute('aria-expanded', 'true');
+    mobileBtn.innerHTML = '<i class="fas fa-times"></i>';
+  };
+
+  mobileBtn.onclick = () => {
+    if (navMenu.classList.contains('open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  };
+
+  navMenu.querySelectorAll('a').forEach(link => {
+    link.onclick = () => closeMenu();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!navMenu.contains(event.target) && !mobileBtn.contains(event.target)) {
+      closeMenu();
+    }
+  });
 }
