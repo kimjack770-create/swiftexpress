@@ -79,6 +79,17 @@ button, input, select, textarea, a {
     display: block;
   }
 
+  .nav-container {
+    gap: 0.75rem;
+  }
+
+  .nav-menu {
+    width: 100%;
+    justify-content: center;
+    order: 3;
+    margin: 0;
+  }
+
   /* Navigation Mobile Drawer */
   .nav-menu {
     position: fixed;
