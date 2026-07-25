@@ -84,16 +84,18 @@ button, input, select, textarea, a {
   }
 
   .nav-menu {
+    display: none;
     position: fixed;
     top: 70px;
-    left: -100%;
+    left: 0;
     width: min(320px, 100%);
     height: calc(100vh - 70px);
     background: var(--bg-card);
     flex-direction: column;
-    padding: 1.5rem;
+    padding: 1.25rem;
     gap: 0.5rem;
-    transition: left 0.3s ease-in-out;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
     border-top: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
     overflow-y: auto;
@@ -104,42 +106,14 @@ button, input, select, textarea, a {
   }
 
   .nav-menu.open {
-    left: 0;
+    display: flex;
+    transform: translateX(0);
   }
 
   .nav-link {
     font-size: 1rem;
     width: 100%;
     padding: 0.8rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* Navigation Mobile Drawer */
-  .nav-menu {
-    position: fixed;
-    top: 70px;
-    left: -100%;
-    width: 100%;
-    height: calc(100vh - 70px);
-    background: var(--bg-card);
-    flex-direction: column;
-    padding: 2rem 1.5rem;
-    gap: 1.25rem;
-    transition: left 0.3s ease-in-out;
-    border-top: 1px solid var(--border);
-    box-shadow: var(--shadow-lg);
-    overflow-y: auto;
-    z-index: 999;
-  }
-
-  .nav-menu.open {
-    left: 0;
-  }
-
-  .nav-link {
-    font-size: 1.1rem;
-    width: 100%;
-    padding: 0.75rem 0;
     border-bottom: 1px solid var(--border);
   }
 

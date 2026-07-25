@@ -68,12 +68,14 @@ export function renderHeader() {
     navMenu.classList.remove('open');
     mobileBtn.setAttribute('aria-expanded', 'false');
     mobileBtn.innerHTML = '<i class="fas fa-bars"></i>';
+    document.body.classList.remove('nav-open');
   };
 
   const openMenu = () => {
     navMenu.classList.add('open');
     mobileBtn.setAttribute('aria-expanded', 'true');
     mobileBtn.innerHTML = '<i class="fas fa-times"></i>';
+    document.body.classList.add('nav-open');
   };
 
   mobileBtn.onclick = () => {
