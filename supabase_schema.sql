@@ -337,7 +337,7 @@ BEGIN
 END $$;
 
 -- --------------------------------------------------------
--- 12. AUTOMATIC TIMESTAMPS TRIGGER
+-- 12. AUTOMATIC TIMESTAMPS & TRACKING CODE TRIGGERS
 -- --------------------------------------------------------
 CREATE OR REPLACE FUNCTION update_timestamp()
 RETURNS TRIGGER AS $$
@@ -346,6 +346,35 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION generate_tracking_number()
+RETURNS TRIGGER AS $$
+DECLARE
+    prefix TEXT := 'SEL';
+    random_suffix TEXT;
+    candidate TEXT;
+BEGIN
+    IF NEW.tracking_number IS NULL OR NEW.tracking_number = '' THEN
+        random_suffix := TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(FLOOR(RANDOM() * 1000000)::INT::TEXT, 6, '0');
+        candidate := prefix || '-' || random_suffix;
+
+        WHILE EXISTS (SELECT 1 FROM public.shipments WHERE tracking_number = candidate) LOOP
+            random_suffix := TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(FLOOR(RANDOM() * 1000000)::INT::TEXT, 6, '0');
+            candidate := prefix || '-' || random_suffix;
+        END LOOP;
+
+        NEW.tracking_number := candidate;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS generate_tracking_number_trigger ON public.shipments;
+CREATE TRIGGER generate_tracking_number_trigger
+BEFORE INSERT ON public.shipments
+FOR EACH ROW
+EXECUTE FUNCTION generate_tracking_number();
 
 DROP TRIGGER IF EXISTS update_shipments_timestamp ON public.shipments;
 CREATE TRIGGER update_shipments_timestamp BEFORE UPDATE ON public.shipments FOR EACH ROW EXECUTE FUNCTION update_timestamp();

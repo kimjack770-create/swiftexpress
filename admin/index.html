@@ -591,7 +591,6 @@
     import { cmsService } from '../js/services/cmsService.js';
     import { getStatusBadge } from '../js/utils/formatters.js';
     import { showToast } from '../js/utils/toast.js';
-    import { generateTrackingNumber } from '../js/utils/trackingGenerator.js';
     import { generatePrintableShippingLabel } from '../js/utils/pdfLabelGenerator.js';
 
     const countriesList = [
@@ -649,10 +648,10 @@
       document.getElementById('nsDispatchDate').value = today;
       document.getElementById('nsArrivalDate').value = estArrival;
 
-      // Auto generate tracking code
-      document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
+      // Leave tracking code empty so the backend can generate it.
+      document.getElementById('nsTrackingCode').value = '';
       document.getElementById('reGenCodeBtn').onclick = () => {
-        document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
+        document.getElementById('nsTrackingCode').value = '';
       };
 
       // Sidebar Toggle
@@ -725,7 +724,7 @@
       // Create Shipment Modal Listeners
       const createModal = document.getElementById('createShipmentModal');
       const openCreateModal = () => {
-        document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
+        document.getElementById('nsTrackingCode').value = '';
         createModal.classList.add('active');
       };
       document.getElementById('quickNewShipmentBtn').onclick = openCreateModal;
@@ -735,7 +734,7 @@
       document.getElementById('newShipmentForm').onsubmit = async (e) => {
         e.preventDefault();
         try {
-          const trackingCode = document.getElementById('nsTrackingCode').value || generateTrackingNumber('SEL');
+          const trackingCode = document.getElementById('nsTrackingCode').value.trim();
           const data = {
             tracking_number: trackingCode,
             sender_name: document.getElementById('nsSenderName').value,

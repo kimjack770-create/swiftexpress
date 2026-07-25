@@ -4,7 +4,6 @@
 // ========================================================
 
 import { dbEngine } from './supabaseClient.js';
-import { generateTrackingNumber } from '../utils/trackingGenerator.js';
 
 function normalizeCode(str) {
   if (!str) return '';
@@ -105,7 +104,7 @@ class ShipmentService {
   }
 
   async createShipment(shipmentData) {
-    const trackingNumber = shipmentData.tracking_number || generateTrackingNumber('SEL');
+    const trackingNumber = shipmentData.tracking_number || null;
 
     const localShipment = {
       id: "sh-" + Date.now(),
