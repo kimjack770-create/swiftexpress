@@ -201,7 +201,7 @@ class ShipmentService {
     return localShipment;
   }
 
-  async updateShipmentStatus(shipmentId, newStatus, location, comment, updatedBy = "Admin") {
+  async updateShipmentStatus(shipmentId, newStatus, location, comment, updatedBy = "Admin", dateValue = '', timeValue = '') {
     const shipments = dbEngine.getCollection('shipments');
     const index = shipments.findIndex(s => s.id === shipmentId || s.tracking_number === shipmentId);
     if (index !== -1) {
@@ -213,6 +213,11 @@ class ShipmentService {
       dbEngine.setCollection('shipments', shipments);
     }
 
+    const selectedDateTime = dateValue && timeValue
+      ? `${dateValue}T${timeValue}:00`
+      : new Date().toISOString();
+    const eventTimestamp = new Date(selectedDateTime).toISOString();
+
     const events = dbEngine.getCollection('tracking_events');
     events.push({
       id: "ev-" + Date.now(),
@@ -220,7 +225,7 @@ class ShipmentService {
       status: newStatus,
       location: location,
       description: comment,
-      timestamp: new Date().toISOString(),
+      timestamp: eventTimestamp,
       updated_by: updatedBy
     });
     dbEngine.setCollection('tracking_events', events);
@@ -231,7 +236,7 @@ class ShipmentService {
         const { error } = await dbEngine.client.from('shipments').update({
           status: newStatus,
           current_location: location,
-          updated_at: new Date().toISOString()
+          updated_at: eventTimestamp
         }).eq('tracking_number', targetShipment?.tracking_number || shipmentId);
 
         if (!error) {
@@ -240,7 +245,8 @@ class ShipmentService {
             status: newStatus,
             location: location,
             description: comment,
-            updated_by: updatedBy
+            updated_by: updatedBy,
+            event_timestamp: eventTimestamp
           }]);
         }
       } catch (err) {

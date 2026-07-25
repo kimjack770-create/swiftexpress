@@ -549,7 +549,17 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">3. Comment *</label>
+          <label class="form-label">3. Date</label>
+          <input type="date" id="upDate" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">4. Time</label>
+          <input type="time" id="upTime" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">5. Comment *</label>
           <textarea id="upDescription" class="form-control" rows="3" placeholder="Type status comment/notes..."
             required></textarea>
         </div>
@@ -800,6 +810,8 @@
         const status = document.getElementById('upNewStatus').value;
         const location = document.getElementById('upLocation').value.trim();
         const desc = document.getElementById('upDescription').value.trim();
+        const dateValue = document.getElementById('upDate').value;
+        const timeValue = document.getElementById('upTime').value;
 
         if (!id) {
           showToast('Create the shipment first so it has a tracking record to update.', 'error');
@@ -813,7 +825,7 @@
           return;
         }
 
-        await shipmentService.updateShipmentStatus(id, status, location, desc);
+        await shipmentService.updateShipmentStatus(id, status, location, desc, 'Admin', dateValue, timeValue);
         showToast('Progress update saved & pushed in real-time!', 'success');
         statusModal.classList.remove('active');
         await refreshShipmentsTable();
