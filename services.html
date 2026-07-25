@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Services | Swift Express Logistics</title>
+  <meta name="description" content="Explore Swift Express worldwide courier and freight services, including air freight, sea freight, warehousing, and customs support.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0A2F6D">
+  <link rel="canonical" href="https://www.swiftexpress.com/services.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:title" content="Swift Express Services">
+  <meta property="og:description" content="Explore Swift Express worldwide courier and freight services, including air freight, sea freight, warehousing, and customs support.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.swiftexpress.com/services.html">
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <div id="header-container"></div>
+
+  <section style="background: linear-gradient(135deg, var(--primary) 0%, #002D62 100%); color: white; padding: 4rem 0;">
+    <div class="container text-center">
+      <h1 style="color: white; margin-bottom: 1rem;">Worldwide Courier & Freight Services</h1>
+      <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto;">Tailored logistics services for air, ocean, land, and e-commerce supply chains.</p>
+    </div>
+  </section>
+
+  <section class="section-padding">
+    <div class="container">
+      <div class="grid grid-3" id="servicesGrid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-container"></div>
+
+  <script type="module">
+    import { renderHeader } from '/js/components/header.js';
+    import { renderFooter } from '/js/components/footer.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
+      renderFooter();
+
+      const allServices = [
+        { id: "air-freight", title: "Air Freight", icon: "fa-plane", desc: "Express air cargo dispatch connecting major global hub airports with door delivery." },
+        { id: "sea-freight", title: "Sea Freight", icon: "fa-ship", desc: "Ocean cargo forwarding (FCL & LCL) with competitive vessel schedules." },
+        { id: "road-freight", title: "Road Freight", icon: "fa-truck-moving", desc: "Cross-border interstate trucking and full truckload (FTL) transport." },
+        { id: "rail-freight", title: "Rail Freight", icon: "fa-train", desc: "Cost-efficient overland rail container transport across continents." },
+        { id: "express-delivery", title: "Express Delivery", icon: "fa-bolt", desc: "Same-day and next-day express courier dispatch for urgent parcels." },
+        { id: "international-shipping", title: "International Shipping", icon: "fa-globe", desc: "Global logistics coverage spanning 150+ countries with full tracking." },
+        { id: "customs-clearance", title: "Customs Clearance", icon: "fa-passport", desc: "Certified customs brokerage, duty payment, and regulatory filing." },
+        { id: "warehousing", title: "Warehousing", icon: "fa-warehouse", desc: "Secure, climate-controlled storage and distribution hubs." },
+        { id: "door-to-door", title: "Door-to-Door Delivery", icon: "fa-door-open", desc: "Seamless pickup from sender address directly to receiver doorstep." },
+        { id: "fulfillment", title: "E-Commerce Fulfillment", icon: "fa-boxes-packing", desc: "Automated pick, pack, label, and return management for online storefronts." }
+      ];
+
+      const grid = document.getElementById('servicesGrid');
+      grid.innerHTML = allServices.map(s => `
+        <div class="service-card">
+          <div class="service-icon"><i class="fas ${s.icon}"></i></div>
+          <h3>${s.title}</h3>
+          <p class="text-muted" style="margin: 0.75rem 0 1.25rem 0;">${s.desc}</p>
+          <a href="/service-details.html?service=${s.id}" class="btn btn-outline btn-sm">View Service Details <i class="fas fa-arrow-right"></i></a>
+        </div>
+      `).join('');
+    });
+  </script>
+</body>
+</html>

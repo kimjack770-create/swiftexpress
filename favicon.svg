@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Swift Express logo">
+  <rect width="64" height="64" rx="16" fill="#0A2F6D"/>
+  <path d="M18 22h20a8 8 0 0 1 8 8v4H26a8 8 0 0 0-8 8v2h-8v-8a10 10 0 0 1 10-10Z" fill="#FF8C00"/>
+  <path d="M20 34h18a8 8 0 0 1 8 8v2H28a8 8 0 0 0-8 8v2H12v-8a10 10 0 0 1 8-10Z" fill="#ffffff"/>
+</svg>

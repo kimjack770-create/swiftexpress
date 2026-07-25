@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Portal | Swift Express Logistics</title>
+  
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Auth Modal (Rendered if not logged in) -->
+  <div id="authModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 450px;">
+      
+      <!-- Login View -->
+      <div id="loginView">
+        <h2 style="margin-bottom: 0.5rem; color: var(--primary);"><i class="fas fa-user-circle"></i> Customer Sign In</h2>
+        <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.9rem;">Access your active packages, address book, and invoices.</p>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="loginEmail" class="form-control" value="customer@swiftexpress.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="loginPassword" class="form-control" value="password123" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;" class="text-muted">
+          Don't have an account? <a href="#" id="showRegisterBtn" class="text-accent font-bold">Register Now</a>
+        </div>
+      </div>
+
+      <!-- Register View -->
+      <div id="registerView" style="display: none;">
+        <h2 style="margin-bottom: 0.5rem; color: var(--accent);"><i class="fas fa-user-plus"></i> Create Customer Account</h2>
+        <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.9rem;">Start tracking and booking shipments instantly.</p>
+
+        <form id="registerForm">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="regName" class="form-control" placeholder="John Doe" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="john@example.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" id="regPhone" class="form-control" placeholder="+1 (555) 000-0000" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="regPassword" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-accent" style="width: 100%; margin-top: 1rem;"><i class="fas fa-user-check"></i> Register Account</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;" class="text-muted">
+          Already have an account? <a href="#" id="showLoginBtn" class="text-primary font-bold">Sign In</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Customer Dashboard Layout -->
+  <div class="dashboard-layout" id="customerDashboard" style="display: none;">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/index.html" class="brand-logo" style="font-size: 1.1rem;">
+          <div class="brand-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fas fa-shipping-fast"></i></div>
+          SWIFT<span>EXPRESS</span>
+        </a>
+      </div>
+
+      <div class="sidebar-menu">
+        <a href="#" class="sidebar-item active" data-tab="shipments"><i class="fas fa-boxes"></i> <span class="sidebar-text">My Shipments</span></a>
+        <a href="#" class="sidebar-item" data-tab="addresses"><i class="fas fa-address-book"></i> <span class="sidebar-text">Address Book</span></a>
+        <a href="#" class="sidebar-item" data-tab="invoices"><i class="fas fa-file-invoice-dollar"></i> <span class="sidebar-text">Invoices & Billing</span></a>
+        <a href="#" class="sidebar-item" data-tab="settings"><i class="fas fa-cog"></i> <span class="sidebar-text">Profile Settings</span></a>
+        <a href="#" class="sidebar-item" id="custLogoutBtn" style="margin-top: auto; color: var(--danger);"><i class="fas fa-sign-out-alt"></i> <span class="sidebar-text">Logout</span></a>
+      </div>
+    </aside>
+
+    <!-- Main View -->
+    <main class="dashboard-main">
+      <header class="dashboard-topbar">
+        <h3 id="tabHeading">My Active Shipments</h3>
+        
+        <div class="topbar-actions">
+          <div class="user-profile-badge">
+            <img id="custAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" class="user-avatar" alt="Avatar">
+            <div>
+              <div class="font-bold" id="custNameDisplay">Customer</div>
+              <div class="text-muted" style="font-size: 0.75rem;" id="custRoleDisplay">Verified Customer</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="dashboard-content">
+        
+        <!-- Shipments Tab -->
+        <div id="tab-shipments" class="tab-content">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">TOTAL BOOKINGS</div>
+                <div class="stat-number text-primary" id="custStatTotal">3</div>
+              </div>
+              <div class="stat-icon blue"><i class="fas fa-box"></i></div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">IN TRANSIT</div>
+                <div class="stat-number text-accent" id="custStatTransit">2</div>
+              </div>
+              <div class="stat-icon orange"><i class="fas fa-truck-fast"></i></div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">DELIVERED</div>
+                <div class="stat-number text-success" id="custStatDelivered">1</div>
+              </div>
+              <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-header">
+              <h3 style="margin: 0;">Shipment Records</h3>
+              <a href="/quote.html" class="btn btn-accent btn-sm"><i class="fas fa-plus"></i> Book New Package</a>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Tracking Code</th>
+                    <th>Route</th>
+                    <th>Service</th>
+                    <th>Weight</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="custShipmentTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Book Tab -->
+        <div id="tab-addresses" class="tab-content" style="display: none;">
+          <div class="card">
+            <div class="flex-between" style="margin-bottom: 1.5rem;">
+              <h3>Saved Address Book</h3>
+              <button class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Address</button>
+            </div>
+            <div class="grid grid-2">
+              <div class="card" style="border-style: dashed;">
+                <span class="badge badge-primary" style="margin-bottom: 0.5rem;">DEFAULT PICKUP</span>
+                <div class="font-bold">Home Address</div>
+                <div class="text-muted" style="font-size: 0.9rem; margin-top: 0.25rem;">1200 Pennsylvania Ave NW, Washington, DC, USA</div>
+              </div>
+              <div class="card" style="border-style: dashed;">
+                <span class="badge badge-warning" style="margin-bottom: 0.5rem;">OFFICE</span>
+                <div class="font-bold">HQ Office Hub</div>
+                <div class="text-muted" style="font-size: 0.9rem; margin-top: 0.25rem;">500 Howard Street, San Francisco, CA, USA</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoices Tab -->
+        <div id="tab-invoices" class="tab-content" style="display: none;">
+          <div class="table-card">
+            <div class="table-header">
+              <h3>Billing & Downloadable Invoices</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Invoice #</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Download</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="font-bold">INV-2026-884920</td>
+                    <td>Jul 22, 2026</td>
+                    <td class="font-bold text-primary">$145.00</td>
+                    <td><span class="badge badge-success">Paid</span></td>
+                    <td><button class="btn btn-outline btn-sm"><i class="fas fa-download"></i> PDF Invoice</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" class="tab-content" style="display: none;">
+          <div class="card container-sm">
+            <h3 style="margin-bottom: 1.5rem;">Profile & Password Settings</h3>
+            <form id="custSettingsForm">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="setCustName" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="setCustEmail" class="form-control" disabled>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Change Password</label>
+                <input type="password" class="form-control" placeholder="New Password">
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { authService } from '/js/services/authService.js';
+    import { shipmentService } from '/js/services/shipmentService.js';
+    import { getStatusBadge } from '/js/utils/formatters.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const authModal = document.getElementById('authModal');
+      const custDash = document.getElementById('customerDashboard');
+      const currentUser = authService.getCurrentUser();
+
+      if (!currentUser) {
+        authModal.classList.add('active');
+        custDash.style.display = 'none';
+      } else {
+        authModal.classList.remove('active');
+        custDash.style.display = 'flex';
+        initCustomerDashboard(currentUser);
+      }
+
+      // Auth View Switchers
+      document.getElementById('showRegisterBtn').onclick = (e) => {
+        e.preventDefault();
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('registerView').style.display = 'block';
+      };
+
+      document.getElementById('showLoginBtn').onclick = (e) => {
+        e.preventDefault();
+        document.getElementById('registerView').style.display = 'none';
+        document.getElementById('loginView').style.display = 'block';
+      };
+
+      // Login Form Listener
+      document.getElementById('loginForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const user = await authService.login(
+          document.getElementById('loginEmail').value,
+          document.getElementById('loginPassword').value
+        );
+        authModal.classList.remove('active');
+        custDash.style.display = 'flex';
+        initCustomerDashboard(user);
+      };
+
+      // Register Form Listener
+      document.getElementById('registerForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const user = await authService.register(
+          document.getElementById('regName').value,
+          document.getElementById('regEmail').value,
+          document.getElementById('regPassword').value,
+          document.getElementById('regPhone').value
+        );
+        authModal.classList.remove('active');
+        custDash.style.display = 'flex';
+        initCustomerDashboard(user);
+      };
+
+      // Logout Listener
+      document.getElementById('custLogoutBtn').onclick = (e) => {
+        e.preventDefault();
+        authService.logout();
+      };
+    });
+
+    async function initCustomerDashboard(user) {
+      document.getElementById('custNameDisplay').textContent = user.full_name || 'Customer';
+      document.getElementById('setCustName').value = user.full_name || '';
+      document.getElementById('setCustEmail').value = user.email || '';
+
+      // Tab switcher
+      const sidebarItems = document.querySelectorAll('.sidebar-item[data-tab]');
+      sidebarItems.forEach(item => {
+        item.onclick = (e) => {
+          e.preventDefault();
+          sidebarItems.forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+
+          const target = item.getAttribute('data-tab');
+          document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
+          document.getElementById(`tab-${target}`).style.display = 'block';
+          document.getElementById('tabHeading').textContent = item.querySelector('.sidebar-text').textContent;
+        };
+      });
+
+      // Load Shipments
+      const shipments = await shipmentService.getAllShipments();
+      const tbody = document.getElementById('custShipmentTableBody');
+
+      tbody.innerHTML = (shipments || []).map(s => `
+        <tr>
+          <td class="font-bold text-primary">${s.tracking_number || 'N/A'}</td>
+          <td>${(s.origin || 'Pending').split(',')[0]} &#10140; ${(s.destination || 'Pending').split(',')[0]}</td>
+          <td>${s.service_type || 'Express'}</td>
+          <td>${s.weight_kg || 0} kg</td>
+          <td>${getStatusBadge(s.status || 'In Transit')}</td>
+          <td><a href="/tracking.html?tracking=${encodeURIComponent(s.tracking_number || '')}" class="btn btn-outline btn-sm"><i class="fas fa-eye"></i> Track</a></td>
+        </tr>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

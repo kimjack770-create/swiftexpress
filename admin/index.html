@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Console | Swift Express Logistics</title>
+
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/print.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- External Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+
+  <!-- Admin Login Overlay -->
+  <div id="adminLoginModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 420px;">
+      <h2 style="color: var(--primary); margin-bottom: 0.5rem;"><i class="fas fa-shield-alt"></i> Admin Portal Sign In
+      </h2>
+      <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.9rem;">Sign in with administrator credentials.
+      </p>
+
+      <form id="adminLoginForm">
+        <div class="form-group">
+          <label class="form-label">Admin Email</label>
+          <input type="email" id="admEmail" class="form-control" value="admin@swiftexpress.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="admPassword" class="form-control" value="admin123" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;"><i class="fas fa-key"></i>
+          Authenticate Console</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard App -->
+  <div class="dashboard-layout" id="adminDashboardApp" style="display: none;">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <a href="/index.html" class="brand-logo" style="font-size: 1.1rem;">
+          <div class="brand-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i
+              class="fas fa-shipping-fast"></i></div>
+          SWIFT<span>EXPRESS</span>
+        </a>
+        <button id="toggleSidebarBtn"
+          style="background: none; border: none; color: var(--text-muted); cursor: pointer;"><i
+            class="fas fa-bars"></i></button>
+      </div>
+
+      <div class="sidebar-menu">
+        <a href="#" class="sidebar-item active" data-tab="overview"><i class="fas fa-chart-line"></i> <span
+            class="sidebar-text">Overview</span></a>
+        <a href="#" class="sidebar-item" data-tab="shipments"><i class="fas fa-boxes"></i> <span
+            class="sidebar-text">Shipments</span></a>
+        <a href="#" class="sidebar-item" data-tab="drivers"><i class="fas fa-id-card"></i> <span
+            class="sidebar-text">Drivers & Fleet</span></a>
+        <a href="#" class="sidebar-item" data-tab="quotes"><i class="fas fa-file-signature"></i> <span
+            class="sidebar-text">Quotes</span></a>
+        <a href="#" class="sidebar-item" data-tab="cms"><i class="fas fa-sliders-h"></i> <span
+            class="sidebar-text">Website CMS</span></a>
+        <a href="#" class="sidebar-item" data-tab="blog"><i class="fas fa-newspaper"></i> <span
+            class="sidebar-text">Blog & News</span></a>
+        <a href="#" class="sidebar-item" data-tab="faqs"><i class="fas fa-question-circle"></i> <span
+            class="sidebar-text">FAQ CMS</span></a>
+        <a href="#" class="sidebar-item" data-tab="testimonials"><i class="fas fa-star"></i> <span
+            class="sidebar-text">Testimonials</span></a>
+        <a href="#" class="sidebar-item" data-tab="settings"><i class="fas fa-cog"></i> <span
+            class="sidebar-text">Settings</span></a>
+        <a href="#" class="sidebar-item" id="admLogoutBtn" style="margin-top: auto; color: var(--danger);"><i
+            class="fas fa-sign-out-alt"></i> <span class="sidebar-text">Logout</span></a>
+      </div>
+    </aside>
+
+    <!-- Main Console Content -->
+    <main class="dashboard-main">
+      <header class="dashboard-topbar">
+        <h3 id="admTabHeading">Console Overview</h3>
+
+        <div class="topbar-actions">
+          <button class="btn btn-accent btn-sm" id="quickNewShipmentBtn"><i class="fas fa-plus"></i> Create
+            Shipment</button>
+
+          <div class="user-profile-badge">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+              class="user-avatar" alt="Admin">
+            <div>
+              <div class="font-bold" id="admNameDisplay">Super Admin</div>
+              <div class="text-muted" style="font-size: 0.75rem;">System Manager</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="dashboard-content">
+
+        <!-- Tab 1: Overview -->
+        <div id="adm-tab-overview" class="adm-tab-content">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">TOTAL SHIPMENTS</div>
+                <div class="stat-number text-primary" id="kpiTotalShipments">128</div>
+              </div>
+              <div class="stat-icon blue"><i class="fas fa-cubes"></i></div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">IN TRANSIT</div>
+                <div class="stat-number text-accent" id="kpiInTransit">42</div>
+              </div>
+              <div class="stat-icon orange"><i class="fas fa-truck-moving"></i></div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">DELIVERED</div>
+                <div class="stat-number text-success" id="kpiDelivered">84</div>
+              </div>
+              <div class="stat-icon green"><i class="fas fa-check-double"></i></div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">MONTHLY REVENUE</div>
+                <div class="stat-number text-primary" id="kpiRevenue">$48,250</div>
+              </div>
+              <div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div>
+            </div>
+          </div>
+
+          <!-- Analytics Chart -->
+          <div class="card" style="margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-chart-area text-primary"></i> Freight Operations
+              Analytics</h3>
+            <canvas id="shipmentAnalyticsChart" height="90"></canvas>
+          </div>
+        </div>
+
+        <!-- Tab 2: Shipments Management -->
+        <div id="adm-tab-shipments" class="adm-tab-content" style="display: none;">
+          <div class="table-card">
+            <div class="table-header">
+              <div class="flex items-center gap-2">
+                <input type="text" id="shipmentSearchInput" class="form-control"
+                  placeholder="Search tracking #, sender, or receiver..." style="width: 280px;">
+                <select id="shipmentFilterStatus" class="form-select" style="width: 170px;">
+                  <option value="ALL">All Statuses</option>
+                  <option value="In Transit">In Transit</option>
+                  <option value="Pending">Pending</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="Delivered">Delivered</option>
+                </select>
+              </div>
+              <button class="btn btn-primary btn-sm" id="createShipmentModalBtn"><i class="fas fa-plus-circle"></i>
+                Create Shipment</button>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Tracking Code</th>
+                    <th>Sender Details</th>
+                    <th>Receiver Details</th>
+                    <th>Parcel / Provider</th>
+                    <th>Dates</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admShipmentsTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Drivers & Fleet -->
+        <div id="adm-tab-drivers" class="adm-tab-content" style="display: none;">
+          <div class="grid grid-2">
+            <div class="card">
+              <div class="flex-between" style="margin-bottom: 1.5rem;">
+                <h3>Active Drivers</h3>
+                <button class="btn btn-primary btn-sm" id="addDriverBtn"><i class="fas fa-plus"></i> Add Driver</button>
+              </div>
+              <div id="driversListContainer"></div>
+            </div>
+
+            <div class="card">
+              <div class="flex-between" style="margin-bottom: 1.5rem;">
+                <h3>Fleet Vehicles</h3>
+                <button class="btn btn-accent btn-sm" id="addVehicleBtn"><i class="fas fa-plus"></i> Add
+                  Vehicle</button>
+              </div>
+              <div id="vehiclesListContainer"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Quotes Management -->
+        <div id="adm-tab-quotes" class="adm-tab-content" style="display: none;">
+          <div class="table-card">
+            <div class="table-header">
+              <h3>Requested Freight Quotes</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Route</th>
+                    <th>Service</th>
+                    <th>Weight</th>
+                    <th>Est. Price</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admQuotesTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: Website CMS -->
+        <div id="adm-tab-cms" class="adm-tab-content" style="display: none;">
+          <div class="card container-sm">
+            <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-edit text-primary"></i> Homepage Hero CMS Editor</h3>
+            <form id="heroCmsForm">
+              <div class="form-group">
+                <label class="form-label">Hero Headline</label>
+                <input type="text" id="cmsHeadline" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Hero Subheadline</label>
+                <textarea id="cmsSubheadline" class="form-control" rows="3" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Publish CMS Updates</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Tab 6: Blog CMS -->
+        <div id="adm-tab-blog" class="adm-tab-content" style="display: none;">
+          <div class="card container-sm">
+            <h3 style="margin-bottom: 1.5rem;">Publish New Blog Post</h3>
+            <form id="newBlogForm">
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <input type="text" id="blogTitle" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <input type="text" id="blogCategory" class="form-control" value="Logistics Tech" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Featured Image URL</label>
+                <input type="url" id="blogImg" class="form-control"
+                  value="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80"
+                  required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Summary</label>
+                <textarea id="blogSummary" class="form-control" rows="2" required></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Content</label>
+                <textarea id="blogContent" class="form-control" rows="5" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-accent"><i class="fas fa-upload"></i> Publish Article</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Tab 7: FAQ CMS -->
+        <div id="adm-tab-faqs" class="adm-tab-content" style="display: none;">
+          <div class="card container-sm">
+            <h3 style="margin-bottom: 1.5rem;">Add New FAQ Entry</h3>
+            <form id="newFaqForm">
+              <div class="form-group">
+                <label class="form-label">Question</label>
+                <input type="text" id="faqQuestion" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Answer</label>
+                <textarea id="faqAnswer" class="form-control" rows="3" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Save FAQ</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Tab 8: Testimonials -->
+        <div id="adm-tab-testimonials" class="adm-tab-content" style="display: none;">
+          <div class="card container-sm">
+            <h3 style="margin-bottom: 1.5rem;">Add Customer Testimonial</h3>
+            <form id="newTestimonialForm">
+              <div class="form-group">
+                <label class="form-label">Author Name</label>
+                <input type="text" id="tstAuthor" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Title & Company</label>
+                <input type="text" id="tstTitle" class="form-control" placeholder="VP of Logistics, Acme Corp" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Review Content</label>
+                <textarea id="tstContent" class="form-control" rows="3" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-accent"><i class="fas fa-save"></i> Save Testimonial</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Tab 9: Settings -->
+        <div id="adm-tab-settings" class="adm-tab-content" style="display: none;">
+          <div class="card container-sm">
+            <h3 style="margin-bottom: 1.5rem;">Global System Configuration</h3>
+            <div class="form-group">
+              <label class="form-label">Supabase URL</label>
+              <input type="text" class="form-control" value="https://wklujorahrvmzxgzuguz.supabase.co" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Supabase Realtime Status</label>
+              <span class="badge badge-success"><i class="fas fa-check-circle"></i> Connected to Production Supabase
+                Cloud</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Create Shipment Modal -->
+  <div id="createShipmentModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 780px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-box-open text-primary"></i> Create New Shipment</h3>
+        <button class="modal-close" id="closeShipmentModalBtn">&times;</button>
+      </div>
+
+      <form id="newShipmentForm">
+
+        <!-- 1. Sender Details -->
+        <h4
+          style="color: var(--primary); margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem;">
+          <i class="fas fa-user-tie"></i> 1. Sender Details</h4>
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label class="form-label">Sender Name *</label>
+            <input type="text" id="nsSenderName" class="form-control" placeholder="Sender Full Name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sender Email *</label>
+            <input type="email" id="nsSenderEmail" class="form-control" placeholder="sender@example.com" required>
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label class="form-label">Phone No *</label>
+            <input type="tel" id="nsSenderPhone" class="form-control" placeholder="+1 (555) 000-0000" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address *</label>
+            <input type="text" id="nsSenderAddress" class="form-control" placeholder="Street Address, City" required>
+          </div>
+        </div>
+
+        <!-- 2. Receiver Details -->
+        <h4
+          style="color: var(--accent); margin: 1.25rem 0 0.75rem 0; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem;">
+          <i class="fas fa-user-check"></i> 2. Receiver Details</h4>
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label class="form-label">Receiver Name *</label>
+            <input type="text" id="nsReceiverName" class="form-control" placeholder="Receiver Full Name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Receiver Email *</label>
+            <input type="email" id="nsReceiverEmail" class="form-control" placeholder="receiver@example.com" required>
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label class="form-label">Phone No *</label>
+            <input type="tel" id="nsReceiverPhone" class="form-control" placeholder="+1 (555) 000-0000" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address *</label>
+            <input type="text" id="nsReceiverAddress" class="form-control" placeholder="Street Address, City" required>
+          </div>
+        </div>
+
+        <!-- 3. Shipment Details -->
+        <h4
+          style="color: var(--primary); margin: 1.25rem 0 0.75rem 0; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem;">
+          <i class="fas fa-boxes"></i> 3. Shipment Details</h4>
+
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label class="form-label">Parcel Type *</label>
+            <select id="nsParcelType" class="form-select">
+              <option value="Box">Box</option>
+              <option value="Carton">Carton</option>
+              <option value="Pallet">Pallet</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">From (Sender's Country) *</label>
+            <select id="nsFromCountry" class="form-select">
+              <!-- Rendered dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Recipient's Country *</label>
+            <select id="nsToCountry" class="form-select">
+              <!-- Rendered dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label class="form-label">Date (Sending Date) *</label>
+            <input type="date" id="nsDispatchDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Arrival Date *</label>
+            <input type="date" id="nsArrivalDate" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label class="form-label">Company Name *</label>
+            <input type="text" id="nsCompany" class="form-control" value="Swift Express Logistics" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Logistics Provider *</label>
+            <select id="nsLogistics" class="form-select">
+              <option value="Swift Express">Swift Express Logistics</option>
+              <option value="UPS">UPS (United Parcel Service)</option>
+              <option value="FedEx">FedEx Express</option>
+              <option value="USPS">USPS (United States Postal Service)</option>
+              <option value="DHL">DHL Express</option>
+              <option value="Royal Mail">Royal Mail (UK)</option>
+              <option value="DPD">DPD UK & Europe</option>
+              <option value="Evri">Evri / Hermes (UK)</option>
+              <option value="Yodel">Yodel (UK)</option>
+              <option value="Parcelforce">Parcelforce Worldwide</option>
+              <option value="Amazon Logistics">Amazon Logistics</option>
+              <option value="Aramex">Aramex</option>
+              <option value="OnTrac">OnTrac (US)</option>
+              <option value="Purolator">Purolator (North America)</option>
+              <option value="DB Schenker">DB Schenker</option>
+              <option value="Kuehne Nagel">Kuehne + Nagel</option>
+              <option value="Maersk">Maersk Logistics</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label class="form-label">Tracking Code (Auto-Generated)</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="nsTrackingCode" class="form-control"
+                style="font-weight: 700; color: var(--primary);" readonly>
+              <button type="button" id="reGenCodeBtn" class="btn btn-outline btn-sm" title="Regenerate Code"><i
+                  class="fas fa-sync-alt"></i></button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quantity *</label>
+            <input type="number" id="nsQuantity" class="form-control" value="1" min="1" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Weight (kg) *</label>
+            <input type="number" step="0.1" id="nsWeight" class="form-control" value="2.5" min="0.1" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Admin Comment / Notes</label>
+          <textarea id="nsComment" class="form-control" rows="2"
+            placeholder="Admin notes, handling instructions..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;"><i
+            class="fas fa-check-circle"></i> Create Shipment & Save Record</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Status Progress Update Modal -->
+  <div id="statusUpdateModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-route text-accent"></i> Update Package Progress</h3>
+        <button class="modal-close" id="closeStatusModalBtn">&times;</button>
+      </div>
+
+      <form id="updateStatusForm">
+        <input type="hidden" id="targetShipmentId">
+
+        <div class="form-group">
+          <label class="form-label">1. Shipment Status *</label>
+          <select id="upNewStatus" class="form-select">
+            <option value="In Transit">In Transit</option>
+            <option value="Pending">Pending</option>
+            <option value="On Hold">On Hold</option>
+            <option value="Picked Up">Picked Up</option>
+            <option value="Customs Clearance">Customs Clearance</option>
+            <option value="Out for Delivery">Out for Delivery</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">2. Location *</label>
+          <input type="text" id="upLocation" class="form-control" placeholder="Type current package location..."
+            required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">3. Comment *</label>
+          <textarea id="upDescription" class="form-control" rows="3" placeholder="Type status comment/notes..."
+            required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-accent btn-lg" style="width: 100%;"><i class="fas fa-broadcast-tower"></i>
+          Push Progress Update</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Shipment Created Success Modal -->
+  <div class="modal" id="shipmentSuccessModal">
+    <div class="modal-box text-center" style="max-width: 480px;">
+      <div style="width: 70px; height: 70px; background: rgba(46, 204, 113, 0.15); color: #2ecc71; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.25rem auto;">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Shipment Created Successfully!</h2>
+      <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.9rem;">The shipment has been registered and assigned a unique tracking code.</p>
+
+      <div style="background: var(--bg-main); border: 2px dashed var(--primary); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+        <div class="text-muted" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.25rem;">GENERATED TRACKING CODE</div>
+        <div id="succTrackingCode" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); font-family: monospace; letter-spacing: 0.05em;">SEL-20260723-XXXXXX</div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+        <button id="copyTrackingCodeBtn" class="btn btn-outline"><i class="fas fa-copy"></i> Copy Code</button>
+        <a id="trackPackageDirectBtn" href="#" target="_blank" class="btn btn-accent"><i class="fas fa-search"></i> Track Package Now</a>
+        <button id="closeSuccessModalBtn" class="btn btn-primary"><i class="fas fa-check"></i> Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { authService } from '/js/services/authService.js';
+    import { shipmentService } from '/js/services/shipmentService.js';
+    import { quoteService } from '/js/services/quoteService.js';
+    import { driverService } from '/js/services/driverService.js';
+    import { cmsService } from '/js/services/cmsService.js';
+    import { getStatusBadge } from '/js/utils/formatters.js';
+    import { showToast } from '/js/utils/toast.js';
+    import { generateTrackingNumber } from '/js/utils/trackingGenerator.js';
+    import { generatePrintableShippingLabel } from '/js/utils/pdfLabelGenerator.js';
+
+    const countriesList = [
+      "United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Japan", "China",
+      "India", "Brazil", "Mexico", "Nigeria", "South Africa", "United Arab Emirates", "Saudi Arabia",
+      "Singapore", "Netherlands", "Italy", "Spain", "Switzerland", "Turkey", "Egypt", "Kenya", "Ghana",
+      "Argentina", "Colombia", "South Korea", "Thailand", "Malaysia", "Vietnam", "Indonesia", "Philippines",
+      "Pakistan", "Sweden", "Norway", "Denmark", "Belgium", "Austria", "New Zealand", "Ireland"
+    ];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const loginModal = document.getElementById('adminLoginModal');
+      const dashApp = document.getElementById('adminDashboardApp');
+
+      if (!authService.isAdmin()) {
+        loginModal.classList.add('active');
+        dashApp.style.display = 'none';
+      } else {
+        loginModal.classList.remove('active');
+        dashApp.style.display = 'flex';
+        initAdminConsole();
+      }
+
+      document.getElementById('adminLoginForm').onsubmit = async (e) => {
+        e.preventDefault();
+        await authService.login(
+          document.getElementById('admEmail').value,
+          document.getElementById('admPassword').value
+        );
+        loginModal.classList.remove('active');
+        dashApp.style.display = 'flex';
+        initAdminConsole();
+      };
+
+      document.getElementById('admLogoutBtn').onclick = (e) => {
+        e.preventDefault();
+        authService.logout();
+      };
+    });
+
+    async function initAdminConsole() {
+      // Populate Country Dropdowns
+      const fromSel = document.getElementById('nsFromCountry');
+      const toSel = document.getElementById('nsToCountry');
+
+      const countryOptionsHtml = countriesList.map(c => `<option value="${c}">${c}</option>`).join('');
+      fromSel.innerHTML = countryOptionsHtml;
+      toSel.innerHTML = countryOptionsHtml;
+      fromSel.value = "United States";
+      toSel.value = "United Kingdom";
+
+      // Set default dates
+      const today = new Date().toISOString().slice(0, 10);
+      const estArrival = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      document.getElementById('nsDispatchDate').value = today;
+      document.getElementById('nsArrivalDate').value = estArrival;
+
+      // Auto generate tracking code
+      document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
+      document.getElementById('reGenCodeBtn').onclick = () => {
+        document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
+      };
+
+      // Sidebar Toggle
+      document.getElementById('toggleSidebarBtn').onclick = () => {
+        const sidebar = document.getElementById('adminSidebar');
+        sidebar.classList.toggle('collapsed');
+        sidebar.classList.toggle('mobile-open');
+      };
+
+      // Tab switcher
+      const sidebarItems = document.querySelectorAll('#adminSidebar .sidebar-item[data-tab]');
+      sidebarItems.forEach(item => {
+        item.onclick = (e) => {
+          e.preventDefault();
+          sidebarItems.forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+
+          const target = item.getAttribute('data-tab');
+          document.querySelectorAll('.adm-tab-content').forEach(tc => tc.style.display = 'none');
+          document.getElementById(`adm-tab-${target}`).style.display = 'block';
+          document.getElementById('admTabHeading').textContent = item.querySelector('.sidebar-text').textContent;
+        };
+      });
+
+      // Render Chart.js Analytics
+      if (window.Chart) {
+        const ctx = document.getElementById('shipmentAnalyticsChart').getContext('2d');
+        new window.Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Active Express Shipments',
+              data: [15, 28, 42, 38, 55, 62, 70],
+              borderColor: '#0057B8',
+              backgroundColor: 'rgba(0, 87, 184, 0.1)',
+              fill: true,
+              tension: 0.3
+            }]
+          }
+        });
+      }
+
+      await refreshShipmentsTable();
+      await refreshQuotesTable();
+      await refreshDriversAndFleet();
+
+      // Create Shipment Modal Listeners
+      const createModal = document.getElementById('createShipmentModal');
+      const openCreateModal = () => {
+        document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
+        createModal.classList.add('active');
+      };
+      document.getElementById('quickNewShipmentBtn').onclick = openCreateModal;
+      document.getElementById('createShipmentModalBtn').onclick = openCreateModal;
+      document.getElementById('closeShipmentModalBtn').onclick = () => createModal.classList.remove('active');
+
+      document.getElementById('newShipmentForm').onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+          const trackingCode = document.getElementById('nsTrackingCode').value || generateTrackingNumber('SEL');
+          const data = {
+            tracking_number: trackingCode,
+            sender_name: document.getElementById('nsSenderName').value,
+            sender_email: document.getElementById('nsSenderEmail').value,
+            sender_phone: document.getElementById('nsSenderPhone').value,
+            sender_address: document.getElementById('nsSenderAddress').value,
+            sender_city: document.getElementById('nsFromCountry').value,
+            sender_country: document.getElementById('nsFromCountry').value,
+            receiver_name: document.getElementById('nsReceiverName').value,
+            receiver_email: document.getElementById('nsReceiverEmail').value,
+            receiver_phone: document.getElementById('nsReceiverPhone').value,
+            receiver_address: document.getElementById('nsReceiverAddress').value,
+            receiver_city: document.getElementById('nsToCountry').value,
+            receiver_country: document.getElementById('nsToCountry').value,
+            package_type: document.getElementById('nsParcelType').value,
+            origin: document.getElementById('nsSenderAddress').value + ", " + document.getElementById('nsFromCountry').value,
+            destination: document.getElementById('nsReceiverAddress').value + ", " + document.getElementById('nsToCountry').value,
+            current_location: document.getElementById('nsSenderAddress').value + ", " + document.getElementById('nsFromCountry').value,
+            dispatch_date: document.getElementById('nsDispatchDate').value,
+            estimated_delivery: document.getElementById('nsArrivalDate').value,
+            company_name: document.getElementById('nsCompany').value,
+            logistics_provider: document.getElementById('nsLogistics').value,
+            quantity: parseInt(document.getElementById('nsQuantity').value) || 1,
+            weight_kg: parseFloat(document.getElementById('nsWeight').value) || 1.0,
+            comment: document.getElementById('nsComment').value,
+            service_type: document.getElementById('nsLogistics').value + " Express",
+            shipping_cost: Math.round(parseFloat(document.getElementById('nsWeight').value) * 35) || 85.00,
+            status: "In Transit"
+          };
+
+          const created = await shipmentService.createShipment(data);
+          createModal.classList.remove('active');
+          document.getElementById('newShipmentForm').reset();
+          await refreshShipmentsTable();
+
+          // Show Success Modal with Tracking Code
+          const successModal = document.getElementById('shipmentSuccessModal');
+          document.getElementById('succTrackingCode').textContent = created.tracking_number;
+          document.getElementById('trackPackageDirectBtn').href = `/tracking.html?tracking=${encodeURIComponent(created.tracking_number)}`;
+          
+          document.getElementById('copyTrackingCodeBtn').onclick = () => {
+            navigator.clipboard.writeText(created.tracking_number);
+            showToast('Tracking code copied to clipboard!', 'success');
+          };
+
+          document.getElementById('closeSuccessModalBtn').onclick = () => {
+            successModal.classList.remove('active');
+          };
+
+          successModal.classList.add('active');
+        } catch (err) {
+          console.error('Shipment creation error:', err);
+          showToast('Error creating shipment: ' + err.message, 'error');
+        }
+      };
+
+      // Status Update Modal Listeners
+      const statusModal = document.getElementById('statusUpdateModal');
+      document.getElementById('closeStatusModalBtn').onclick = () => statusModal.classList.remove('active');
+      document.getElementById('updateStatusForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('targetShipmentId').value.trim();
+        const status = document.getElementById('upNewStatus').value;
+        const location = document.getElementById('upLocation').value.trim();
+        const desc = document.getElementById('upDescription').value.trim();
+
+        if (!id) {
+          showToast('Create the shipment first so it has a tracking record to update.', 'error');
+          return;
+        }
+
+        const allShipments = await shipmentService.getAllShipments();
+        const targetShipment = allShipments.find(item => item.id === id || item.tracking_number === id);
+        if (!targetShipment) {
+          showToast('That shipment was not found. Create it first, then update the tracking status.', 'error');
+          return;
+        }
+
+        await shipmentService.updateShipmentStatus(id, status, location, desc);
+        showToast('Progress update saved & pushed in real-time!', 'success');
+        statusModal.classList.remove('active');
+        await refreshShipmentsTable();
+      };
+
+      // CMS Hero Form Listener
+      document.getElementById('heroCmsForm').onsubmit = async (e) => {
+        e.preventDefault();
+        await cmsService.updateCMSContent('hero', 'Homepage Hero', {
+          headline: document.getElementById('cmsHeadline').value,
+          subheadline: document.getElementById('cmsSubheadline').value
+        });
+        showToast('Website Hero CMS updated!', 'success');
+      };
+    }
+
+    async function refreshShipmentsTable() {
+      const shipments = await shipmentService.getAllShipments();
+      const tbody = document.getElementById('admShipmentsTableBody');
+
+      tbody.innerHTML = shipments.map(s => `
+        <tr>
+          <td>
+            <div class="font-bold text-primary">${s.tracking_number}</div>
+            <div class="text-muted" style="font-size:0.75rem;">${s.company_name || 'Swift Express'} (${s.logistics_provider || 'Swift'})</div>
+          </td>
+          <td>
+            <div class="font-bold">${s.sender_name}</div>
+            <div class="text-muted" style="font-size:0.8rem;">${s.sender_email || s.sender_phone}</div>
+            <div class="text-muted" style="font-size:0.75rem;">${s.origin}</div>
+          </td>
+          <td>
+            <div class="font-bold">${s.receiver_name}</div>
+            <div class="text-muted" style="font-size:0.8rem;">${s.receiver_email || s.receiver_phone}</div>
+            <div class="text-muted" style="font-size:0.75rem;">${s.destination}</div>
+          </td>
+          <td>
+            <span class="badge badge-primary">${s.package_type || 'Box'}</span>
+            <div class="text-muted" style="font-size:0.8rem; margin-top: 0.2rem;">Qty: ${s.quantity || 1} | Wt: ${s.weight_kg}kg</div>
+          </td>
+          <td>
+            <div style="font-size:0.8rem;"><strong>Send:</strong> ${s.dispatch_date || 'Today'}</div>
+            <div style="font-size:0.8rem;"><strong>Arr:</strong> ${s.estimated_delivery || 'N/A'}</div>
+          </td>
+          <td>${getStatusBadge(s.status)}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-icon update-status-btn" data-id="${s.id}" title="Update Package Progress"><i class="fas fa-truck-moving"></i></button>
+              <button class="btn-icon print-label-btn" data-id="${s.id}" title="Print Label"><i class="fas fa-print"></i></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Attach button events
+      document.querySelectorAll('.update-status-btn').forEach(btn => {
+        btn.onclick = () => {
+          document.getElementById('targetShipmentId').value = btn.getAttribute('data-id');
+          document.getElementById('statusUpdateModal').classList.add('active');
+        };
+      });
+
+      document.querySelectorAll('.print-label-btn').forEach(btn => {
+        btn.onclick = () => {
+          const sh = shipments.find(item => item.id === btn.getAttribute('data-id'));
+          if (sh) generatePrintableShippingLabel(sh);
+        };
+      });
+    }
+
+    async function refreshQuotesTable() {
+      const quotes = await quoteService.getAllQuotes();
+      const tbody = document.getElementById('admQuotesTableBody');
+
+      tbody.innerHTML = quotes.map(q => `
+        <tr>
+          <td class="font-bold">${q.full_name}<br><span class="text-muted" style="font-size:0.8rem;">${q.email}</span></td>
+          <td>${q.pickup_country} &#10140; ${q.destination_country}</td>
+          <td>${q.delivery_type}</td>
+          <td>${q.weight_kg} kg</td>
+          <td class="font-bold text-primary">$${q.estimated_price}</td>
+          <td>${getStatusBadge(q.status)}</td>
+          <td>
+            ${q.status === 'Pending' ? `
+              <button class="btn btn-accent btn-sm convert-quote-btn" data-id="${q.id}">Convert to Shipment</button>
+            ` : `<span class="text-muted">Converted</span>`}
+          </td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('.convert-quote-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const q = quotes.find(item => item.id === btn.getAttribute('data-id'));
+          if (q) {
+            await quoteService.convertQuoteToShipment(q);
+            showToast('Quote converted to active shipment!', 'success');
+            await refreshQuotesTable();
+            await refreshShipmentsTable();
+          }
+        };
+      });
+    }
+
+    async function refreshDriversAndFleet() {
+      const drivers = await driverService.getAllDrivers();
+      const vehicles = await driverService.getAllVehicles();
+
+      const dContainer = document.getElementById('driversListContainer');
+      dContainer.innerHTML = drivers.map(d => `
+        <div class="card" style="margin-bottom: 0.75rem; padding: 1rem;">
+          <div class="flex-between">
+            <div>
+              <div class="font-bold">${d.full_name}</div>
+              <div class="text-muted" style="font-size: 0.85rem;">License: ${d.license_number} | Phone: ${d.phone}</div>
+            </div>
+            ${getStatusBadge(d.status)}
+          </div>
+        </div>
+      `).join('');
+
+      const vContainer = document.getElementById('vehiclesListContainer');
+      vContainer.innerHTML = vehicles.map(v => `
+        <div class="card" style="margin-bottom: 0.75rem; padding: 1rem;">
+          <div class="flex-between">
+            <div>
+              <div class="font-bold">${v.plate_number} (${v.model})</div>
+              <div class="text-muted" style="font-size: 0.85rem;">Type: ${v.type} | Cap: ${v.capacity_kg} kg</div>
+            </div>
+            ${getStatusBadge(v.status)}
+          </div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+
+</html>

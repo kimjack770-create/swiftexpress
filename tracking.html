@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Package Tracking | Swift Express Logistics</title>
+  <meta name="description" content="Track Swift Express shipments in real time with package status, timeline history, and delivery estimates.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0A2F6D">
+  <link rel="canonical" href="https://www.swiftexpress.com/tracking.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:title" content="Track Your Swift Express Shipment">
+  <meta property="og:description" content="Track Swift Express shipments in real time with package status, timeline history, and delivery estimates.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.swiftexpress.com/tracking.html">
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/print.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Code Generators -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+  <div id="header-container"></div>
+
+  <!-- Hero Tracking Search Header -->
+  <section style="background: linear-gradient(135deg, var(--primary) 0%, #002D62 100%); color: white; padding: 4rem 0;">
+    <div class="container text-center">
+      <h1 style="color: white; margin-bottom: 1rem;">Track Your Shipment</h1>
+      <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto 2rem auto;">Enter your tracking code to view live GPS position, timeline history, and estimated delivery time.</p>
+      
+      <div style="max-width: 650px; margin: 0 auto;">
+        <form id="trackingForm">
+          <div class="tracking-input-group">
+            <input type="text" id="trackingInput" placeholder="e.g. SEL-20260723-884920" required>
+            <button type="submit" class="btn btn-accent"><i class="fas fa-search"></i> Track</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Tracking Results Container -->
+  <section class="section-padding">
+    <div class="container">
+      
+      <!-- Error Message State -->
+      <div id="notFoundState" class="card text-center" style="display: none; padding: 4rem 2rem;">
+        <i class="fas fa-exclamation-triangle text-accent" style="font-size: 3.5rem; margin-bottom: 1.5rem;"></i>
+        <h2>Tracking number not found.</h2>
+        <p class="text-muted" style="margin: 0.75rem 0 1.5rem 0;">Please check your tracking number and try again, or contact customer support.</p>
+        <a href="/contact.html" class="btn btn-outline">Contact Customer Support</a>
+      </div>
+
+      <!-- Active Shipment Details Container -->
+      <div id="shipmentResultsState" style="display: none;">
+        
+        <!-- Header Info Card -->
+        <div class="card" style="margin-bottom: 2rem;">
+          <div class="flex-between" style="flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="text-muted" style="font-size: 0.85rem; font-weight: 700;">TRACKING NUMBER</span>
+              <h2 id="resTrackingNum" style="font-size: 1.85rem; color: var(--primary);">SEL-XXXXXX</h2>
+              <div id="resStatusBadge" style="margin-top: 0.5rem;"></div>
+            </div>
+
+            <div class="text-right">
+              <span class="text-muted" style="font-size: 0.85rem; font-weight: 700;">ESTIMATED ARRIVAL DATE</span>
+              <div id="resEstDelivery" class="font-bold" style="font-size: 1.4rem;">Jul 25, 2026</div>
+              <button id="printLabelBtn" class="btn btn-outline btn-sm" style="margin-top: 0.5rem;"><i class="fas fa-print"></i> Print Shipping Label</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          
+          <!-- Timeline Column (2 cols) -->
+          <div style="grid-column: span 2;">
+            <div class="card" style="margin-bottom: 2rem;">
+              <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-route text-primary"></i> Live Shipment Timeline</h3>
+              <div class="timeline" id="timelineContainer">
+                <!-- Timeline events rendered here -->
+              </div>
+            </div>
+
+            <!-- Leaflet Map Container -->
+            <div class="card">
+              <h3 style="margin-bottom: 1rem;"><i class="fas fa-map-marked-alt text-primary"></i> Package Location Map</h3>
+              <div id="trackingMap" class="map-container"></div>
+            </div>
+          </div>
+
+          <!-- Specs Sidebar Column (1 col) -->
+          <div>
+            <div class="card" style="margin-bottom: 1.5rem;">
+              <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">Shipment Details</h3>
+              
+              <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.95rem;">
+                <div>
+                  <span class="text-muted">Courier Company:</span>
+                  <div class="font-bold text-primary" id="resCompany">Swift Express Logistics</div>
+                </div>
+                <div>
+                  <span class="text-muted">Logistics Provider:</span>
+                  <div class="font-bold" id="resLogistics">DHL</div>
+                </div>
+                <div>
+                  <span class="text-muted">Parcel Type:</span>
+                  <div class="font-bold" id="resParcelType">Carton</div>
+                </div>
+                <div>
+                  <span class="text-muted">Quantity & Weight:</span>
+                  <div class="font-bold" id="resQtyWeight">1 Item (2.5 kg)</div>
+                </div>
+                <div>
+                  <span class="text-muted">Dispatch Date:</span>
+                  <div class="font-bold" id="resDispatchDate">2026-07-23</div>
+                </div>
+                <div>
+                  <span class="text-muted">Current Location:</span>
+                  <div class="font-bold text-accent" id="resCurrentLoc">Sorting Hub</div>
+                </div>
+                <div id="resCommentBox" style="background: var(--bg-main); padding: 0.75rem; border-radius: var(--radius-sm); margin-top: 0.5rem; display: none;">
+                  <span class="text-muted" style="font-size: 0.8rem; font-weight: 700;">ADMIN NOTES:</span>
+                  <div style="font-size: 0.85rem;" id="resCommentText">Handle with care</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address Specs Card -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+              <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">Sender & Receiver</h3>
+              
+              <div style="margin-bottom: 1rem;">
+                <div class="section-tag" style="background: var(--primary-light); color: var(--primary); font-size: 0.75rem;">SENDER (FROM)</div>
+                <div class="font-bold" id="resSenderName">John Harrison</div>
+                <div class="text-muted" style="font-size: 0.85rem;" id="resSenderPhone">Email/Phone</div>
+                <div class="text-muted" style="font-size: 0.85rem;" id="resOrigin">Washington, USA</div>
+              </div>
+
+              <div>
+                <div class="section-tag" style="background: var(--accent-light); color: var(--accent); font-size: 0.75rem;">RECEIVER (TO)</div>
+                <div class="font-bold" id="resReceiverName">Emma Watson</div>
+                <div class="text-muted" style="font-size: 0.85rem;" id="resReceiverPhone">Email/Phone</div>
+                <div class="text-muted" style="font-size: 0.85rem;" id="resDestination">London, UK</div>
+              </div>
+            </div>
+
+            <!-- Codes Verification Box -->
+            <div class="card text-center">
+              <h4 style="margin-bottom: 1rem;">Digital Pass Verification</h4>
+              <div id="qrcodeBox" style="display: inline-block; margin-bottom: 1rem;"></div>
+              <div>
+                <svg id="barcodeBox" style="width: 100%; max-height: 50px;"></svg>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <div id="footer-container"></div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { renderHeader } from '/js/components/header.js';
+    import { renderFooter } from '/js/components/footer.js';
+    import { shipmentService } from '/js/services/shipmentService.js';
+    import { getStatusBadge, formatDate } from '/js/utils/formatters.js';
+    import { renderPackageMap } from '/js/components/map.js';
+    import { generatePrintableShippingLabel } from '/js/utils/pdfLabelGenerator.js';
+
+    let currentActiveShipment = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderHeader();
+      renderFooter();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialCode = urlParams.get('tracking');
+
+      if (initialCode) {
+        document.getElementById('trackingInput').value = initialCode;
+        performTrackingLookup(initialCode);
+      }
+
+      document.getElementById('trackingForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = document.getElementById('trackingInput').value.trim();
+        if (code) performTrackingLookup(code);
+      });
+
+      document.getElementById('printLabelBtn').onclick = () => {
+        if (currentActiveShipment) generatePrintableShippingLabel(currentActiveShipment);
+      };
+    });
+
+    async function performTrackingLookup(trackingCode) {
+      const shipment = await shipmentService.getShipmentByTrackingNumber(trackingCode);
+      const notFoundState = document.getElementById('notFoundState');
+      const resultsState = document.getElementById('shipmentResultsState');
+
+      if (!shipment) {
+        notFoundState.style.display = 'block';
+        resultsState.style.display = 'none';
+        return;
+      }
+
+      currentActiveShipment = shipment;
+      notFoundState.style.display = 'none';
+      resultsState.style.display = 'block';
+
+      // Fill header data
+      document.getElementById('resTrackingNum').textContent = shipment.tracking_number || 'N/A';
+      document.getElementById('resStatusBadge').innerHTML = getStatusBadge(shipment.status || 'In Transit');
+      document.getElementById('resEstDelivery').textContent = shipment.estimated_delivery ? formatDate(shipment.estimated_delivery) : 'Pending';
+
+      // Fill Specs
+      document.getElementById('resCompany').textContent = shipment.company_name || 'Swift Express Logistics';
+      document.getElementById('resLogistics').textContent = shipment.logistics_provider || 'Swift Express';
+      document.getElementById('resParcelType').textContent = shipment.package_type || 'Box';
+      document.getElementById('resQtyWeight').textContent = `${shipment.quantity || 1} Item(s) (${shipment.weight_kg || 0} kg)`;
+      document.getElementById('resDispatchDate').textContent = shipment.dispatch_date || 'N/A';
+      document.getElementById('resCurrentLoc').textContent = shipment.current_location || 'Pending update';
+
+      if (shipment.comment) {
+        document.getElementById('resCommentBox').style.display = 'block';
+        document.getElementById('resCommentText').textContent = shipment.comment;
+      } else {
+        document.getElementById('resCommentBox').style.display = 'none';
+      }
+
+      document.getElementById('resSenderName').textContent = shipment.sender_name || 'N/A';
+      document.getElementById('resSenderPhone').textContent = `${shipment.sender_phone || 'N/A'} | ${shipment.sender_email || ''}`.trim();
+      document.getElementById('resOrigin').textContent = shipment.origin || 'Pending';
+      
+      document.getElementById('resReceiverName').textContent = shipment.receiver_name || 'N/A';
+      document.getElementById('resReceiverPhone').textContent = `${shipment.receiver_phone || 'N/A'} | ${shipment.receiver_email || ''}`.trim();
+      document.getElementById('resDestination').textContent = shipment.destination || 'Pending';
+
+      // Load Events
+      const events = await shipmentService.getTrackingEvents(shipment.id);
+      const timelineContainer = document.getElementById('timelineContainer');
+      
+      timelineContainer.innerHTML = (events || []).map(ev => `
+        <div class="timeline-item active">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="timeline-time"><i class="fas fa-clock"></i> ${formatDate(ev.timestamp || new Date().toISOString())} - ${ev.location || 'Processing'}</div>
+            <div class="timeline-title">${ev.status || 'Status update'}</div>
+            <div class="text-muted" style="font-size: 0.9rem;">${ev.description || 'Shipment activity recorded.'}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Updated by: ${ev.updated_by || 'System'}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Map rendering
+      renderPackageMap(
+        'trackingMap',
+        38.9072, -77.0369,
+        shipment.current_lat || 51.4700,
+        shipment.current_lng || -0.4543,
+        shipment.current_location
+      );
+
+      // Render QR & Barcode
+      const qrBox = document.getElementById('qrcodeBox');
+      qrBox.innerHTML = '';
+      if (window.QRCode) {
+        new window.QRCode(qrBox, {
+          text: window.location.href,
+          width: 90,
+          height: 90
+        });
+      }
+
+      if (window.JsBarcode) {
+        window.JsBarcode("#barcodeBox", shipment.tracking_number, {
+          format: "CODE128",
+          lineColor: "#000",
+          width: 2,
+          height: 40,
+          displayValue: false
+        });
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "Swift Express Logistics",
+  "short_name": "SwiftExpress",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A2F6D",
+  "theme_color": "#0A2F6D",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | Swift Express Logistics</title>
+  <meta name="description" content="Learn about Swift Express Logistics, our global network, and the values behind our courier and freight services.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0A2F6D">
+  <link rel="canonical" href="https://www.swiftexpress.com/about.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:title" content="About Swift Express Logistics">
+  <meta property="og:description" content="Learn about Swift Express Logistics, our global network, and the values behind our courier and freight services.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.swiftexpress.com/about.html">
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <div id="header-container"></div>
+
+  <section style="background: linear-gradient(135deg, var(--primary) 0%, #002D62 100%); color: white; padding: 4rem 0;">
+    <div class="container text-center">
+      <h1 style="color: white; margin-bottom: 1rem;">About Swift Express Logistics</h1>
+      <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto;">Pioneering modern global logistics, door-to-door express parcel delivery, and smart supply chain management since 2012.</p>
+    </div>
+  </section>
+
+  <section class="section-padding">
+    <div class="container">
+      <div class="grid grid-2 items-center" style="gap: 4rem;">
+        <div>
+          <span class="section-tag">OUR STORY</span>
+          <h2 class="section-title">Redefining Global Freight with Speed & Transparency</h2>
+          <p class="text-muted" style="margin-bottom: 1.25rem;">Founded with a vision to simplify global commerce, Swift Express Logistics operates across 150+ countries with a dedicated fleet of freight planes, sea vessels, and last-mile electric cargo vehicles.</p>
+          <p class="text-muted" style="margin-bottom: 1.5rem;">We empower businesses of all sizes — from individual online sellers to Fortune 500 enterprises — with real-time package tracking, customs automation, and zero-compromise security.</p>
+          
+          <div class="grid grid-2" style="gap: 1.5rem; margin-top: 2rem;">
+            <div class="card" style="padding: 1.25rem;">
+              <h4 style="color: var(--primary); margin-bottom: 0.5rem;"><i class="fas fa-bullseye"></i> Our Mission</h4>
+              <p style="font-size: 0.85rem;" class="text-muted">Deliver every package safely, on time, with full live visibility and eco-friendly transportation.</p>
+            </div>
+            <div class="card" style="padding: 1.25rem;">
+              <h4 style="color: var(--accent); margin-bottom: 0.5rem;"><i class="fas fa-eye"></i> Our Vision</h4>
+              <p style="font-size: 0.85rem;" class="text-muted">Become the world's most trusted, technology-driven logistics partner for seamless cross-border trade.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);" alt="Logistics Center">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-container"></div>
+
+  <script type="module">
+    import { renderHeader } from '/js/components/header.js';
+    import { renderFooter } from '/js/components/footer.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
+      renderFooter();
+    });
+  </script>
+</body>
+</html>

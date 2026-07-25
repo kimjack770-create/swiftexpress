@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get an Instant Freight Quote | Swift Express Logistics</title>
+  <meta name="description" content="Request an instant freight quote for air, sea, road, and door-to-door delivery services worldwide.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0A2F6D">
+  <link rel="canonical" href="https://www.swiftexpress.com/quote.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:title" content="Instant Freight Quote">
+  <meta property="og:description" content="Request an instant freight quote for air, sea, road, and door-to-door delivery services worldwide.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.swiftexpress.com/quote.html">
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <div id="header-container"></div>
+
+  <section style="background: linear-gradient(135deg, var(--primary) 0%, #002D62 100%); color: white; padding: 4rem 0;">
+    <div class="container text-center">
+      <h1 style="color: white; margin-bottom: 1rem;">Get an Instant Freight Quote</h1>
+      <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto;">Calculate custom rates for express air, sea, and road freight shipments worldwide.</p>
+    </div>
+  </section>
+
+  <section class="section-padding">
+    <div class="container container-sm">
+      <div class="card">
+        <form id="quoteForm">
+          <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;"><i class="fas fa-user-circle text-primary"></i> Contact Information</h3>
+          
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" id="qtFullName" class="form-control" placeholder="e.g. Sarah Connor" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address *</label>
+              <input type="email" id="qtEmail" class="form-control" placeholder="sarah@example.com" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" id="qtPhone" class="form-control" placeholder="+1 (555) 000-0000" required>
+          </div>
+
+          <h3 style="margin: 2rem 0 1.5rem 0; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;"><i class="fas fa-map-marker-alt text-accent"></i> Pickup & Destination</h3>
+
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="form-label">Pickup Country *</label>
+              <input type="text" id="qtPickupCountry" class="form-control" placeholder="e.g. United States" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pickup Address / City *</label>
+              <input type="text" id="qtPickupAddress" class="form-control" placeholder="e.g. Los Angeles, CA" required>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="form-label">Destination Country *</label>
+              <input type="text" id="qtDestCountry" class="form-control" placeholder="e.g. Germany" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Destination Address / City *</label>
+              <input type="text" id="qtDestAddress" class="form-control" placeholder="e.g. Berlin, Germany" required>
+            </div>
+          </div>
+
+          <h3 style="margin: 2rem 0 1.5rem 0; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;"><i class="fas fa-box text-primary"></i> Package Specifications</h3>
+
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="form-label">Package Type *</label>
+              <select id="qtPackageType" class="form-select">
+                <option value="Parcel">Standard Parcel</option>
+                <option value="Documents">Legal Documents</option>
+                <option value="Heavy Cargo">Heavy Cargo / Freight</option>
+                <option value="Pallet">Pallet Cargo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Delivery Service Type *</label>
+              <select id="qtDeliveryType" class="form-select">
+                <option value="Express Delivery">Express Door-to-Door Delivery</option>
+                <option value="Air Freight">Air Freight Express</option>
+                <option value="Sea Freight">Ocean Sea Cargo</option>
+                <option value="Road Freight">Road Trucking Freight</option>
+                <option value="UPS Express">UPS Express Saver</option>
+                <option value="FedEx Priority">FedEx International Priority</option>
+                <option value="USPS Priority">USPS Priority Mail Express</option>
+                <option value="DHL Express">DHL Express Worldwide</option>
+                <option value="Royal Mail Express">Royal Mail International (UK)</option>
+                <option value="DPD Express">DPD Air Express (UK/EU)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-4">
+            <div class="form-group">
+              <label class="form-label">Weight (kg) *</label>
+              <input type="number" step="0.1" id="qtWeight" class="form-control" value="5.0" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Length (cm)</label>
+              <input type="number" id="qtLength" class="form-control" value="30">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Width (cm)</label>
+              <input type="number" id="qtWidth" class="form-control" value="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" id="qtHeight" class="form-control" value="20">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Cargo Description & Special Instructions</label>
+            <textarea id="qtDescription" class="form-control" rows="3" placeholder="Describe items, fragile warnings, temperature sensitivity..."></textarea>
+          </div>
+
+          <!-- Estimated Price Banner -->
+          <div class="card" style="background: var(--primary-light); border-color: var(--primary); margin: 2rem 0; text-align: center;">
+            <span class="text-muted font-bold" style="font-size: 0.85rem;">ESTIMATED FREIGHT PRICE</span>
+            <div id="estPriceDisplay" style="font-size: 2.25rem; font-weight: 800; color: var(--primary);">$150.00</div>
+            <span class="text-muted" style="font-size: 0.8rem;">*Final pricing subject to physical dimension check upon collection.</span>
+          </div>
+
+          <button type="submit" class="btn btn-accent btn-lg" style="width: 100%;"><i class="fas fa-paper-plane"></i> Submit Quote Request</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-container"></div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { renderHeader } from '/js/components/header.js';
+    import { renderFooter } from '/js/components/footer.js';
+    import { quoteService } from '/js/services/quoteService.js';
+    import { showToast } from '/js/utils/toast.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
+      renderFooter();
+
+      const weightInput = document.getElementById('qtWeight');
+      const serviceSelect = document.getElementById('qtDeliveryType');
+      const priceDisplay = document.getElementById('estPriceDisplay');
+
+      function calculateEst() {
+        const weight = parseFloat(weightInput.value) || 1;
+        const type = serviceSelect.value;
+        let rate = 15;
+        if (type === 'Air Freight') rate = 25;
+        if (type === 'Express Delivery') rate = 30;
+        if (type === 'Sea Freight') rate = 8;
+        const total = Math.max(25, weight * rate);
+        priceDisplay.textContent = `$${total.toFixed(2)}`;
+      }
+
+      weightInput.oninput = calculateEst;
+      serviceSelect.onchange = calculateEst;
+      calculateEst();
+
+      document.getElementById('quoteForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const form = e.currentTarget;
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        
+        const quoteData = {
+          full_name: document.getElementById('qtFullName').value.trim(),
+          email: document.getElementById('qtEmail').value.trim(),
+          phone: document.getElementById('qtPhone').value.trim(),
+          pickup_country: document.getElementById('qtPickupCountry').value.trim(),
+          pickup_address: document.getElementById('qtPickupAddress').value.trim(),
+          destination_country: document.getElementById('qtDestCountry').value.trim(),
+          destination_address: document.getElementById('qtDestAddress').value.trim(),
+          package_type: document.getElementById('qtPackageType').value,
+          delivery_type: document.getElementById('qtDeliveryType').value,
+          weight_kg: parseFloat(document.getElementById('qtWeight').value),
+          length_cm: parseFloat(document.getElementById('qtLength').value) || 0,
+          width_cm: parseFloat(document.getElementById('qtWidth').value) || 0,
+          height_cm: parseFloat(document.getElementById('qtHeight').value) || 0,
+          description: document.getElementById('qtDescription').value.trim()
+        };
+
+        try {
+          await quoteService.submitQuoteRequest(quoteData);
+          showToast('Quote request submitted! An agent will review and contact you shortly.', 'success');
+          form.reset();
+          calculateEst();
+        } catch (err) {
+          showToast('Error submitting quote: ' + err.message, 'error');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

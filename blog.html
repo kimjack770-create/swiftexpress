@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News & Blog | Swift Express Logistics</title>
+  <meta name="description" content="Read the latest logistics news, shipping insights, and supply chain updates from Swift Express.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0A2F6D">
+  <link rel="canonical" href="https://www.swiftexpress.com/blog.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:title" content="Swift Express Blog">
+  <meta property="og:description" content="Read the latest logistics news, shipping insights, and supply chain updates from Swift Express.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.swiftexpress.com/blog.html">
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <div id="header-container"></div>
+
+  <section style="background: linear-gradient(135deg, var(--primary) 0%, #002D62 100%); color: white; padding: 4rem 0;">
+    <div class="container text-center">
+      <h1 style="color: white; margin-bottom: 1rem;">Logistics News & Insights</h1>
+      <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto;">Stay updated on supply chain trends, AI fleet technologies, and global trade regulations.</p>
+    </div>
+  </section>
+
+  <section class="section-padding">
+    <div class="container">
+      <div class="grid grid-3" id="blogGrid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-container"></div>
+
+  <script type="module">
+    import { renderHeader } from '/js/components/header.js';
+    import { renderFooter } from '/js/components/footer.js';
+    import { cmsService } from '/js/services/cmsService.js';
+    import { formatDate } from '/js/utils/formatters.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderHeader();
+      renderFooter();
+
+      const posts = await cmsService.getBlogPosts();
+      const grid = document.getElementById('blogGrid');
+
+      grid.innerHTML = posts.map(p => `
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <img src="${p.image_url}" style="width: 100%; height: 200px; object-fit: cover;" alt="${p.title}">
+          <div style="padding: 1.5rem;">
+            <span class="badge badge-primary" style="margin-bottom: 0.75rem;">${p.category}</span>
+            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">${p.title}</h3>
+            <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1.25rem;">${p.summary}</p>
+            <div class="flex-between text-muted" style="font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 0.75rem;">
+              <span>By ${p.author}</span>
+              <span>${formatDate(p.published_at)}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swift Express Logistics | Global Express Courier & Freight Solutions</title>
+  <meta name="description" content="Swift Express Logistics offers air freight, sea freight, road transport, door-to-door courier services, and real-time shipment tracking worldwide.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0A2F6D">
+  <link rel="canonical" href="https://www.swiftexpress.com/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:title" content="Swift Express Logistics">
+  <meta property="og:description" content="Global courier and freight services with real-time tracking and instant quote support.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.swiftexpress.com/">
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- CSS Dependencies -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+  <!-- Dynamic Header Container -->
+  <div id="header-container"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <i class="fas fa-bolt"></i> FASTEST GLOBAL LOGISTICS NETWORK
+        </div>
+        <h1 class="hero-title" id="heroHeadline">Connecting Businesses & People Across the <span>Globe</span></h1>
+        <p class="hero-subtitle" id="heroSubheadline">Track shipments in real-time, get instant freight quotes, and experience world-class express courier services delivered with precision.</p>
+
+        <!-- Tracking Bar Widget -->
+        <div class="tracking-search-box">
+          <form id="heroTrackingForm">
+            <div class="tracking-input-group">
+              <input type="text" id="heroTrackingInput" placeholder="Enter Tracking Number (e.g. SEL-20260723-884920)" required>
+              <button type="submit" class="btn btn-accent"><i class="fas fa-search"></i> Track Package</button>
+            </div>
+          </form>
+          <div style="font-size: 0.85rem; margin-top: 0.75rem; color: rgba(255,255,255,0.8);">
+            Try sample tracking numbers: <a href="/tracking.html?tracking=SEL-20260723-884920" style="color: #FF8C00; text-decoration: underline;">SEL-20260723-884920</a> or <a href="/tracking.html?tracking=SEL-20260723-339102" style="color: #FF8C00; text-decoration: underline;">SEL-20260723-339102</a>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+          <a href="/quote.html" class="btn btn-primary btn-lg"><i class="fas fa-calculator"></i> Get a Free Quote</a>
+          <a href="/services.html" class="btn btn-outline btn-lg" style="color: white; border-color: white;"><i class="fas fa-boxes"></i> Our Services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Network Visuals -->
+  <section class="section-padding" style="background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-card) 100%);">
+    <div class="container">
+      <div class="text-center" style="margin-bottom: 2rem;">
+        <span class="section-tag">OUR NETWORK</span>
+        <h2 class="section-title" style="margin-bottom: 0.75rem;">From air lanes to ocean routes, every shipment stays connected</h2>
+        <p class="section-subtitle">See how Swift Express moves urgent cargo with precision through air, sea, and road logistics.</p>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <img src="/images/images.jfif" alt="Air cargo and airplane logistics" style="width: 100%; height: 280px; object-fit: cover; display: block;">
+          <div style="padding: 1.5rem;">
+            <h3 style="margin-bottom: 0.5rem;">Ocean Freight Reliability</h3>
+            <p class="text-muted" style="margin: 0;">Trusted sea freight and container shipping for large-scale cargo across global trade lanes</p>
+          </div>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <img src="/images/images (1).jfif" alt="Cargo ship logistics" style="width: 100%; height: 280px; object-fit: cover; display: block;">
+          <div style="padding: 1.5rem;">
+            <h3 style="margin-bottom: 0.5rem;">Air Cargo Precision</h3>
+            <p class="text-muted" style="margin: 0;">Rapid domestic and international air freight with live tracking and priority handling..</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Company Statistics -->
+  <section class="section-padding" style="background: var(--bg-card); border-bottom: 1px solid var(--border);">
+    <div class="container">
+      <div class="grid grid-4 text-center">
+        <div>
+          <div class="text-primary font-bold" style="font-size: 2.75rem;">150+</div>
+          <div class="text-muted font-bold" style="font-size: 0.95rem;">Countries Covered</div>
+        </div>
+        <div>
+          <div class="text-accent font-bold" style="font-size: 2.75rem;">2.5M+</div>
+          <div class="text-muted font-bold" style="font-size: 0.95rem;">Packages Delivered</div>
+        </div>
+        <div>
+          <div class="text-primary font-bold" style="font-size: 2.75rem;">99.8%</div>
+          <div class="text-muted font-bold" style="font-size: 0.95rem;">On-Time Delivery Rate</div>
+        </div>
+        <div>
+          <div class="text-accent font-bold" style="font-size: 2.75rem;">24/7</div>
+          <div class="text-muted font-bold" style="font-size: 0.95rem;">Customer Support</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="section-padding">
+    <div class="container">
+      <div class="text-center">
+        <span class="section-tag">WHY SWIFT EXPRESS</span>
+        <h2 class="section-title">Logistics Excellence Built on Trust & Tech</h2>
+        <p class="section-subtitle">We combine state-of-the-art GPS telemetry, automated warehousing, and express customs handling to ensure your packages reach their destination safely.</p>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="card text-center">
+          <div class="service-icon" style="margin: 0 auto 1.5rem auto;"><i class="fas fa-satellite"></i></div>
+          <h3>Real-time GPS Tracking</h3>
+          <p class="text-muted" style="margin-top: 0.75rem;">Know the exact location and temperature status of your shipment every step of the journey through Supabase Realtime telemetry.</p>
+        </div>
+
+        <div class="card text-center">
+          <div class="service-icon" style="margin: 0 auto 1.5rem auto; background: var(--accent-light); color: var(--accent);"><i class="fas fa-plane-departure"></i></div>
+          <h3>Express Air & Sea Freight</h3>
+          <p class="text-muted" style="margin-top: 0.75rem;">Customized freight forwarding schedules connecting major trade hubs across North America, Europe, Asia, and Africa.</p>
+        </div>
+
+        <div class="card text-center">
+          <div class="service-icon" style="margin: 0 auto 1.5rem auto;"><i class="fas fa-shield-alt"></i></div>
+          <h3>Secured Cargo Insurance</h3>
+          <p class="text-muted" style="margin-top: 0.75rem;">Complete end-to-end liability coverage and climate-controlled storage for sensitive electronics, pharmaceutical, and high-value cargo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Services Grid -->
+  <section class="section-padding" style="background: var(--bg-main);">
+    <div class="container">
+      <div class="flex-between" style="margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="section-tag">OUR SERVICES</span>
+          <h2 class="section-title" style="margin-bottom: 0;">Comprehensive Supply Chain Solutions</h2>
+        </div>
+        <a href="/services.html" class="btn btn-outline">View All Services <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="grid grid-3" id="homeServicesGrid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="section-padding" style="background: var(--bg-card); border-top: 1px solid var(--border);">
+    <div class="container text-center">
+      <span class="section-tag">TESTIMONIALS</span>
+      <h2 class="section-title">Trusted by Industry Leaders Worldwide</h2>
+      <p class="section-subtitle">Read what top enterprise clients and e-commerce leaders say about our delivery performance.</p>
+
+      <div class="grid grid-2 text-left" id="homeTestimonialsGrid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic Footer Container -->
+  <div id="footer-container"></div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { renderHeader } from '/js/components/header.js';
+    import { renderFooter } from '/js/components/footer.js';
+    import { cmsService } from '/js/services/cmsService.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderHeader();
+      renderFooter();
+
+      // Hero Form Listener
+      document.getElementById('heroTrackingForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = document.getElementById('heroTrackingInput').value.trim();
+        if (code) {
+          window.location.href = `/tracking.html?tracking=${encodeURIComponent(code)}`;
+        }
+      });
+
+      // Load Services
+      const services = [
+        { title: "Air Freight Forwarding", icon: "fa-plane", desc: "Priority air cargo dispatch for urgent international shipments.", link: "air-freight" },
+        { title: "Ocean Sea Cargo", icon: "fa-ship", desc: "Full Container Load (FCL) and Less than Container Load (LCL) global shipping.", link: "sea-freight" },
+        { title: "Express Door-to-Door", icon: "fa-truck-fast", desc: "Rapid last-mile delivery directly to your customer's doorstep.", link: "door-to-door" },
+        { title: "Customs Clearance Brokerage", icon: "fa-passport", desc: "Seamless import/export duty calculation and document management.", link: "customs" },
+        { title: "E-Commerce Fulfillment", icon: "fa-warehouse", desc: "Pick, pack, and automated inventory sync with major storefronts.", link: "fulfillment" },
+        { title: "Temperature Controlled Storage", icon: "fa-temperature-low", desc: "Pharma and perishable cargo cold-chain logistics.", link: "warehousing" }
+      ];
+
+      const servicesGrid = document.getElementById('homeServicesGrid');
+      servicesGrid.innerHTML = services.map(s => `
+        <div class="service-card">
+          <div class="service-icon"><i class="fas ${s.icon}"></i></div>
+          <h3>${s.title}</h3>
+          <p class="text-muted" style="margin: 0.75rem 0 1.25rem 0;">${s.desc}</p>
+          <a href="/service-details.html?service=${s.link}" class="font-bold text-primary">Explore Service <i class="fas fa-chevron-right"></i></a>
+        </div>
+      `).join('');
+
+      // Load Testimonials
+      const testimonials = await cmsService.getTestimonials();
+      const testGrid = document.getElementById('homeTestimonialsGrid');
+      testGrid.innerHTML = testimonials.map(t => `
+        <div class="card">
+          <div style="color: var(--accent); margin-bottom: 1rem;">
+            ${'<i class="fas fa-star"></i>'.repeat(t.rating)}
+          </div>
+          <p style="font-style: italic; font-size: 1.05rem; margin-bottom: 1.5rem;">"${t.content}"</p>
+          <div class="flex items-center gap-2">
+            <img src="${t.avatar_url}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" alt="${t.author_name}">
+            <div>
+              <div class="font-bold">${t.author_name}</div>
+              <div class="text-muted" style="font-size: 0.85rem;">${t.author_title}, ${t.company}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    });
+  </script>
+</body>
+</html>
