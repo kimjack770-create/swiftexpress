@@ -602,6 +602,7 @@
     import { getStatusBadge } from '../js/utils/formatters.js';
     import { showToast } from '../js/utils/toast.js';
     import { generatePrintableShippingLabel } from '../js/utils/pdfLabelGenerator.js';
+    import { generateTrackingNumber } from '../js/utils/trackingGenerator.js';
 
     const countriesList = [
       "United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Japan", "China",
@@ -658,11 +659,7 @@
       document.getElementById('nsDispatchDate').value = today;
       document.getElementById('nsArrivalDate').value = estArrival;
 
-      // Leave tracking code empty so the backend can generate it.
-      document.getElementById('nsTrackingCode').value = '';
-      document.getElementById('reGenCodeBtn').onclick = () => {
-        document.getElementById('nsTrackingCode').value = '';
-      };
+      // Regenerate button is now also handled above in openCreateModal
 
       // Sidebar Toggle
       const toggleSidebar = () => {
@@ -734,12 +731,16 @@
       // Create Shipment Modal Listeners
       const createModal = document.getElementById('createShipmentModal');
       const openCreateModal = () => {
-        document.getElementById('nsTrackingCode').value = '';
+        // Auto-generate a fresh tracking code every time modal opens
+        document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
         createModal.classList.add('active');
       };
       document.getElementById('quickNewShipmentBtn').onclick = openCreateModal;
       document.getElementById('createShipmentModalBtn').onclick = openCreateModal;
       document.getElementById('closeShipmentModalBtn').onclick = () => createModal.classList.remove('active');
+      document.getElementById('reGenCodeBtn').onclick = () => {
+        document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
+      };
 
       document.getElementById('newShipmentForm').onsubmit = async (e) => {
         e.preventDefault();
@@ -877,6 +878,7 @@
           <td>
             <div class="action-btns">
               <button class="btn-icon update-status-btn" data-id="${s.id}" title="Update Package Progress"><i class="fas fa-truck-moving"></i></button>
+              <a class="btn-icon" href="../tracking.html?tracking=${encodeURIComponent(s.tracking_number)}" target="_blank" title="Track this Shipment" style="display:inline-flex;align-items:center;justify-content:center;"><i class="fas fa-search-location"></i></a>
               <button class="btn-icon print-label-btn" data-id="${s.id}" title="Print Label"><i class="fas fa-print"></i></button>
             </div>
           </td>

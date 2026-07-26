@@ -257,17 +257,32 @@
       const events = await shipmentService.getTrackingEvents(shipment.id);
       const timelineContainer = document.getElementById('timelineContainer');
       
-      timelineContainer.innerHTML = (events || []).map(ev => `
-        <div class="timeline-item active">
-          <div class="timeline-dot"></div>
-          <div class="timeline-content">
-            <div class="timeline-time"><i class="fas fa-clock"></i> ${formatDate(ev.timestamp || new Date().toISOString())} - ${ev.location || 'Processing'}</div>
-            <div class="timeline-title">${ev.status || 'Status update'}</div>
-            <div class="text-muted" style="font-size: 0.9rem;">${ev.description || 'Shipment activity recorded.'}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Updated by: ${ev.updated_by || 'System'}</div>
+      // Sort by timestamp ascending (oldest first)
+      const sortedEvents = (events || []).slice().sort((a, b) => {
+        const ta = new Date(a.timestamp || a.event_timestamp || 0).getTime();
+        const tb = new Date(b.timestamp || b.event_timestamp || 0).getTime();
+        return ta - tb;
+      });
+
+      if (sortedEvents.length === 0) {
+        timelineContainer.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <i class="fas fa-clock" style="font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.5;"></i>
+            <p>No tracking events recorded yet. Check back shortly.</p>
+          </div>`;
+      } else {
+        timelineContainer.innerHTML = sortedEvents.map((ev, idx) => `
+          <div class="timeline-item active">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-time"><i class="fas fa-clock"></i> ${formatDate(ev.timestamp || ev.event_timestamp || new Date().toISOString())} — ${ev.location || 'Processing'}</div>
+              <div class="timeline-title">${ev.status || 'Status update'}</div>
+              <div class="text-muted" style="font-size: 0.9rem;">${ev.description || 'Shipment activity recorded.'}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Updated by: ${ev.updated_by || 'System'}</div>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `).join('');
+      }
 
       // Map rendering
       renderPackageMap(

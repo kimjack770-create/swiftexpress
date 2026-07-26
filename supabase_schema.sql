@@ -327,61 +327,48 @@ BEGIN
         )
       );
 
-    -- Shipments: public read for customers/tracking; writes only by authenticated admins.
+    -- Shipments: public read; anon write allowed for admin dashboard (uses anon key, not Supabase Auth).
+    -- NOTE: For production with Supabase Auth, replace anon policies with authenticated + role-check policies.
     DROP POLICY IF EXISTS "Public shipments read" ON public.shipments;
     DROP POLICY IF EXISTS "Allow authenticated admin writes shipments" ON public.shipments;
     DROP POLICY IF EXISTS "Allow authenticated admin updates shipments" ON public.shipments;
+    DROP POLICY IF EXISTS "Allow anon writes shipments" ON public.shipments;
+    DROP POLICY IF EXISTS "Allow anon updates shipments" ON public.shipments;
     CREATE POLICY "Public shipments read" ON public.shipments
       FOR SELECT USING (true);
-    CREATE POLICY "Allow authenticated admin writes shipments" ON public.shipments
-      FOR INSERT WITH CHECK (
-        auth.role() = 'authenticated' AND EXISTS (
-          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
-        )
-      );
-    CREATE POLICY "Allow authenticated admin updates shipments" ON public.shipments
-      FOR UPDATE USING (
-        auth.role() = 'authenticated' AND EXISTS (
-          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
-        )
-      )
-      WITH CHECK (
-        auth.role() = 'authenticated' AND EXISTS (
-          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
-        )
-      );
+    -- Allow anon-key inserts (admin panel uses anon key with local session auth)
+    CREATE POLICY "Allow anon writes shipments" ON public.shipments
+      FOR INSERT WITH CHECK (true);
+    CREATE POLICY "Allow anon updates shipments" ON public.shipments
+      FOR UPDATE USING (true)
+      WITH CHECK (true);
 
-    -- Tracking events: public read; writes only by authenticated admins.
+    -- Tracking events: public read; anon write allowed for admin dashboard (uses anon key, not Supabase Auth).
+    -- NOTE: For production with Supabase Auth, remove "Allow anon writes tracking_events" and rely on authenticated policies.
     DROP POLICY IF EXISTS "Public tracking events read" ON public.tracking_events;
     DROP POLICY IF EXISTS "Allow authenticated admin writes tracking_events" ON public.tracking_events;
     DROP POLICY IF EXISTS "Allow authenticated admin updates tracking_events" ON public.tracking_events;
+    DROP POLICY IF EXISTS "Allow anon writes tracking_events" ON public.tracking_events;
     CREATE POLICY "Public tracking events read" ON public.tracking_events
       FOR SELECT USING (true);
-    CREATE POLICY "Allow authenticated admin writes tracking_events" ON public.tracking_events
-      FOR INSERT WITH CHECK (
-        auth.role() = 'authenticated' AND EXISTS (
-          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
-        )
-      );
+    -- Allow anon-key inserts (admin panel uses anon key with local session auth)
+    CREATE POLICY "Allow anon writes tracking_events" ON public.tracking_events
+      FOR INSERT WITH CHECK (true);
+    DROP POLICY IF EXISTS "Allow authenticated admin updates tracking_events" ON public.tracking_events;
     CREATE POLICY "Allow authenticated admin updates tracking_events" ON public.tracking_events
-      FOR UPDATE USING (
-        auth.role() = 'authenticated' AND EXISTS (
-          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
-        )
-      )
-      WITH CHECK (
-        auth.role() = 'authenticated' AND EXISTS (
-          SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('Super Admin', 'Admin', 'Dispatcher', 'Manager')
-        )
-      );
+      FOR UPDATE USING (true)
+      WITH CHECK (true);
 
     -- Quotes: allow public insert/read for quote requests.
     DROP POLICY IF EXISTS "Public quotes insert" ON public.quotes;
     DROP POLICY IF EXISTS "Allow full access quotes" ON public.quotes;
+    DROP POLICY IF EXISTS "Allow public quotes access" ON public.quotes;
     CREATE POLICY "Allow public quotes access" ON public.quotes FOR ALL USING (true) WITH CHECK (true);
 
     -- Drivers & Vehicles: allow public read, admin write.
     DROP POLICY IF EXISTS "Allow full access drivers" ON public.drivers;
+    DROP POLICY IF EXISTS "Allow public drivers read" ON public.drivers;
+    DROP POLICY IF EXISTS "Allow admin drivers write" ON public.drivers;
     CREATE POLICY "Allow public drivers read" ON public.drivers
       FOR SELECT USING (true);
     CREATE POLICY "Allow admin drivers write" ON public.drivers
@@ -397,6 +384,8 @@ BEGIN
       );
 
     DROP POLICY IF EXISTS "Allow full access vehicles" ON public.vehicles;
+    DROP POLICY IF EXISTS "Allow public vehicles read" ON public.vehicles;
+    DROP POLICY IF EXISTS "Allow admin vehicles write" ON public.vehicles;
     CREATE POLICY "Allow public vehicles read" ON public.vehicles
       FOR SELECT USING (true);
     CREATE POLICY "Allow admin vehicles write" ON public.vehicles

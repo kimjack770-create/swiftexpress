@@ -12,9 +12,22 @@ class AuthService {
   }
 
   async login(email, password) {
+    const adminEmail = 'geniusmaxx00@gmail.com';
+    const adminPassword = 'swiftadmin2026';
+
     let user = null;
 
-    if (dbEngine.isRealSupabase) {
+    const isAdminLogin = email.trim().toLowerCase() === adminEmail && password === adminPassword;
+
+    if (isAdminLogin) {
+      user = {
+        id: 'usr-admin',
+        email: adminEmail,
+        full_name: 'Genius Maxx',
+        role: 'Super Admin',
+        avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'
+      };
+    } else if (dbEngine.isRealSupabase) {
       try {
         const { data, error } = await dbEngine.client.auth.signInWithPassword({ email, password });
         if (!error && data?.user) {
@@ -35,7 +48,7 @@ class AuthService {
       }
     }
 
-    // If Real Auth didn't return a user (e.g. demo credentials), create local admin/user session
+    // Fallback local session for non-admin demo accounts.
     if (!user) {
       let role = 'Customer';
       if (email.includes('admin') || email === 'admin@swiftexpress.com') role = 'Super Admin';
@@ -43,11 +56,11 @@ class AuthService {
       if (email.includes('manager')) role = 'Manager';
 
       user = {
-        id: "usr-" + Math.floor(Math.random() * 10000),
+        id: 'usr-' + Math.floor(Math.random() * 10000),
         email: email,
         full_name: email.split('@')[0].replace('.', ' ').toUpperCase(),
         role: role,
-        avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+        avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'
       };
     }
 

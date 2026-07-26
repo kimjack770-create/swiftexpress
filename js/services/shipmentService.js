@@ -12,8 +12,18 @@ function normalizeCode(str) {
 
 function generateFallbackTrackingNumber(prefix = 'SEL') {
   const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const randomPart = Math.floor(100000 + Math.random() * 900000).toString();
-  return `${prefix}-${datePart}-${randomPart}`;
+  const randomHex = Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0');
+  return `${prefix}-${datePart}-${randomHex}`;
+}
+
+// Normalize a Supabase tracking_event row → consistent shape used by the UI
+function normalizeEvent(ev) {
+  if (!ev) return ev;
+  return {
+    ...ev,
+    // Supabase schema uses event_timestamp; local uses timestamp. Unify here.
+    timestamp: ev.timestamp || ev.event_timestamp || new Date().toISOString()
+  };
 }
 
 class ShipmentService {
@@ -38,6 +48,18 @@ class ShipmentService {
     }
 
     return Array.from(combinedMap.values());
+  }
+
+  // Internal helper: fetch only cloud shipments (used for UUID resolution)
+  async _getCloudShipments() {
+    if (!dbEngine.isRealSupabase) return [];
+    try {
+      const { data, error } = await dbEngine.client.from('shipments').select('id, tracking_number');
+      if (!error && data) return data;
+    } catch (err) {
+      console.warn('Cloud shipments fetch notice:', err.message);
+    }
+    return [];
   }
 
   async getShipmentByTrackingNumber(trackingNumber) {
@@ -94,23 +116,44 @@ class ShipmentService {
   }
 
   async getTrackingEvents(shipmentId) {
-    const localEvents = dbEngine.getCollection('tracking_events').filter(e => e.shipment_id === shipmentId);
-    if (localEvents.length > 0) return localEvents;
-
+    // 1. Try Supabase cloud first (handles UUID IDs from cloud-created shipments)
     if (dbEngine.isRealSupabase) {
       try {
-        const { data, error } = await dbEngine.client.from('tracking_events').select('*').eq('shipment_id', shipmentId).order('timestamp', { ascending: true });
-        if (!error && data && data.length > 0) return data;
+        // Supabase schema column is event_timestamp, order by it
+        const { data, error } = await dbEngine.client
+          .from('tracking_events')
+          .select('*')
+          .eq('shipment_id', shipmentId)
+          .order('event_timestamp', { ascending: true });
+        if (!error && data && data.length > 0) {
+          const normalized = data.map(normalizeEvent);
+          // Mirror into local storage for offline resilience
+          const localEvents = dbEngine.getCollection('tracking_events');
+          normalized.forEach(ev => {
+            if (!localEvents.find(le => le.id === ev.id)) {
+              localEvents.push({ ...ev, local_backup: true });
+            }
+          });
+          dbEngine.setCollection('tracking_events', localEvents);
+          return normalized;
+        }
       } catch (err) {
-        console.warn('Real Supabase tracking events notice:', err.message);
+        console.warn('Supabase tracking events fetch notice:', err.message);
       }
     }
+
+    // 2. Fall back to local storage
+    const localEvents = dbEngine.getCollection('tracking_events')
+      .filter(e => e.shipment_id === shipmentId)
+      .map(normalizeEvent);
 
     return localEvents;
   }
 
   async createShipment(shipmentData) {
     const trackingNumber = (shipmentData.tracking_number || '').toString().trim();
+    // Always generate client-side so the admin sees it immediately, even if Supabase
+    // trigger overrides it (it won't if we pass a non-empty value).
     const resolvedTrackingNumber = trackingNumber || generateFallbackTrackingNumber('SEL');
 
     const localShipment = {
@@ -135,23 +178,41 @@ class ShipmentService {
         const { data, error } = await dbEngine.client.from('shipments').insert([cloudPayload]).select().single();
         if (!error && data) {
           const cloudShipment = { ...data, id: data.id || localShipment.id };
-          const cloudEvent = {
-            id: "ev-" + Date.now(),
+          // Insert initial tracking event — use event_timestamp to match DB schema
+          const cloudEventPayload = {
             shipment_id: cloudShipment.id,
             status: cloudShipment.status,
-            location: cloudShipment.origin,
-            description: cloudShipment.comment || "Package record created and shipping label generated.",
-            timestamp: new Date().toISOString(),
-            updated_by: "Admin"
+            location: cloudShipment.origin || cloudShipment.current_location,
+            description: cloudShipment.comment || 'Package record created and shipping label generated.',
+            updated_by: 'Admin',
+            event_timestamp: new Date().toISOString()
           };
-
+          const localFallbackEvent = normalizeEvent({
+            id: 'ev-' + Date.now(),
+            shipment_id: cloudShipment.id,
+            status: cloudShipment.status,
+            location: cloudShipment.origin || cloudShipment.current_location,
+            description: cloudShipment.comment || 'Package record created and shipping label generated.',
+            event_timestamp: new Date().toISOString(),
+            updated_by: 'Admin'
+          });
           try {
-            await dbEngine.client.from('tracking_events').insert([cloudEvent]);
+            const { data: evData } = await dbEngine.client.from('tracking_events').insert([cloudEventPayload]).select().single();
+            if (evData) {
+              const normalizedCloudEvent = normalizeEvent(evData);
+              const events = dbEngine.getCollection('tracking_events');
+              events.push({ ...normalizedCloudEvent, local_backup: true });
+              dbEngine.setCollection('tracking_events', events);
+            }
           } catch (e) {
             console.warn('Supabase tracking event insert notice:', e.message);
+            // Store locally with matching shipment_id so tracking page finds it
+            const eventsLocal = dbEngine.getCollection('tracking_events');
+            eventsLocal.push({ ...localFallbackEvent, local_backup: true });
+            dbEngine.setCollection('tracking_events', eventsLocal);
           }
 
-          // Mirror to local storage as a fallback/cache
+          // Mirror shipment to local storage as a fallback/cache
           const shipments = dbEngine.getCollection('shipments');
           const existingIdx = shipments.findIndex(s => normalizeCode(s.tracking_number) === normalizeCode(cloudShipment.tracking_number));
           if (existingIdx !== -1) {
@@ -160,10 +221,6 @@ class ShipmentService {
             shipments.unshift({ ...cloudShipment, local_backup: true });
           }
           dbEngine.setCollection('shipments', shipments);
-
-          const events = dbEngine.getCollection('tracking_events');
-          events.push({ ...cloudEvent, local_backup: true });
-          dbEngine.setCollection('tracking_events', events);
 
           return cloudShipment;
         }
@@ -232,22 +289,39 @@ class ShipmentService {
 
     if (dbEngine.isRealSupabase) {
       try {
-        const targetShipment = shipments.find(s => s.id === shipmentId || s.tracking_number === shipmentId);
-        const { error } = await dbEngine.client.from('shipments').update({
+        // Resolve the actual cloud shipment UUID — look it up by tracking_number if needed
+        const cloudShipments = await this._getCloudShipments();
+        const targetShipment = cloudShipments.find(s =>
+          s.id === shipmentId ||
+          s.tracking_number === shipmentId ||
+          normalizeCode(s.tracking_number) === normalizeCode(shipmentId)
+        ) || shipments.find(s => s.id === shipmentId || s.tracking_number === shipmentId);
+
+        const cloudId = targetShipment?.id || shipmentId;
+        const trackingNum = targetShipment?.tracking_number || shipmentId;
+
+        const { error: updateErr } = await dbEngine.client.from('shipments').update({
           status: newStatus,
           current_location: location,
           updated_at: eventTimestamp
-        }).eq('tracking_number', targetShipment?.tracking_number || shipmentId);
+        }).eq('tracking_number', trackingNum);
 
-        if (!error) {
-          await dbEngine.client.from('tracking_events').insert([{
-            shipment_id: targetShipment?.id || shipmentId,
+        if (!updateErr) {
+          const { data: evData } = await dbEngine.client.from('tracking_events').insert([{
+            shipment_id: cloudId,
             status: newStatus,
             location: location,
             description: comment,
             updated_by: updatedBy,
             event_timestamp: eventTimestamp
-          }]);
+          }]).select().single();
+
+          if (evData) {
+            // Mirror to local
+            const localEvents = dbEngine.getCollection('tracking_events');
+            localEvents.push(normalizeEvent({ ...evData, local_backup: true }));
+            dbEngine.setCollection('tracking_events', localEvents);
+          }
         }
       } catch (err) {
         console.warn('Supabase status update notice:', err.message);
