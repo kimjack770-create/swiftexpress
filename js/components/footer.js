@@ -57,7 +57,7 @@ export function renderFooter() {
               <li><i class="fas fa-map-marker-alt text-accent" style="width: 20px;"></i>4080, Jenkins Road
 Chattanooga, TN 37421 USA</li>
               <li><i class="fas fa-phone-alt text-accent" style="width: 20px;"></i> <a href="tel:+17757570577" style="color: inherit; font-weight: 700;">+1 (775) 757-0577</a></li>
-              <li><i class="fas fa-envelope text-accent" style="width: 20px;"></i> <a href="mailto:support@swiftexpress.com" style="color: inherit; font-weight: 700;">support@swiftexpress.com</a></li>
+              <li><i class="fas fa-envelope text-accent" style="width: 20px;"></i> <a href="mailto:support@swiftexpresslogix.com" style="color: inherit; font-weight: 700;">support@swiftexpresslogix.com</a></li>
               <li><i class="fas fa-clock text-accent" style="width: 20px;"></i> Mon - Sat: 8:00 AM - 9:00 PM EST</li>
             </ul>
           </div>
