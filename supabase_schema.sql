@@ -118,10 +118,14 @@ CREATE TABLE IF NOT EXISTS public.shipments (
 );
 
 -- SAFE COLUMN ALTERATIONS FOR EXISTING DATABASE TABLES
+ALTER TABLE public.shipments DROP CONSTRAINT IF EXISTS shipments_service_type_check;
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS company_name VARCHAR(255) DEFAULT 'Swift Express Logistics';
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS logistics_provider VARCHAR(100) DEFAULT 'Swift Express';
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS comment TEXT;
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS dispatch_date DATE DEFAULT CURRENT_DATE;
+ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS shipping_method VARCHAR(100) DEFAULT 'Air transport';
+ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS product VARCHAR(255);
+ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS pickup_time VARCHAR(100);
 
 -- --------------------------------------------------------
 -- 5. TRACKING EVENTS TABLE

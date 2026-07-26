@@ -115,6 +115,14 @@
                   <div class="font-bold" id="resLogistics">DHL</div>
                 </div>
                 <div>
+                  <span class="text-muted">Shipping Method:</span>
+                  <div class="font-bold text-primary" id="resShippingMethod">Air transport</div>
+                </div>
+                <div>
+                  <span class="text-muted">Product / Cargo:</span>
+                  <div class="font-bold" id="resProduct">Commercial Goods</div>
+                </div>
+                <div>
                   <span class="text-muted">Parcel Type:</span>
                   <div class="font-bold" id="resParcelType">Carton</div>
                 </div>
@@ -123,8 +131,8 @@
                   <div class="font-bold" id="resQtyWeight">1 Item (2.5 kg)</div>
                 </div>
                 <div>
-                  <span class="text-muted">Dispatch Date:</span>
-                  <div class="font-bold" id="resDispatchDate">2026-07-23</div>
+                  <span class="text-muted">Dispatch Date & Pickup:</span>
+                  <div class="font-bold" id="resDispatchDate">2026-07-23 (09:00 AM)</div>
                 </div>
                 <div>
                   <span class="text-muted">Current Location:</span>
@@ -233,9 +241,11 @@
       // Fill Specs
       document.getElementById('resCompany').textContent = shipment.company_name || 'Swift Express Logistics';
       document.getElementById('resLogistics').textContent = shipment.logistics_provider || 'Swift Express';
+      document.getElementById('resShippingMethod').textContent = shipment.shipping_method || shipment.service_type || 'Air transport';
+      document.getElementById('resProduct').textContent = shipment.product || 'General Goods';
       document.getElementById('resParcelType').textContent = shipment.package_type || 'Box';
       document.getElementById('resQtyWeight').textContent = `${shipment.quantity || 1} Item(s) (${shipment.weight_kg || 0} kg)`;
-      document.getElementById('resDispatchDate').textContent = shipment.dispatch_date || 'N/A';
+      document.getElementById('resDispatchDate').textContent = `${shipment.dispatch_date || 'N/A'}${shipment.pickup_time ? ' (' + shipment.pickup_time + ')' : ''}`;
       document.getElementById('resCurrentLoc').textContent = shipment.current_location || 'Pending update';
 
       if (shipment.comment) {
