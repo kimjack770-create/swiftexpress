@@ -255,3 +255,72 @@ button, input, select, textarea, a {
     font-size: 1.5rem;
   }
 }
+
+/* ========================================================
+   TRACKING PAGE MOBILE RESPONSIVE ENHANCEMENTS
+   ======================================================== */
+.tracking-main-col {
+  grid-column: span 2;
+}
+
+@media (max-width: 992px) {
+  .tracking-main-col {
+    grid-column: span 1 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .tracking-hero-section {
+    padding: 2.5rem 1rem !important;
+  }
+
+  .tracking-header-flex {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1.25rem !important;
+  }
+
+  .tracking-header-right {
+    text-align: left !important;
+    width: 100%;
+    border-top: 1px dashed var(--border);
+    padding-top: 1rem;
+  }
+
+  .tracking-header-right button {
+    width: 100%;
+  }
+
+  .tracking-number-text {
+    font-size: clamp(1.3rem, 5vw, 1.85rem) !important;
+    word-break: break-all;
+  }
+
+  .map-container {
+    height: 280px !important;
+  }
+
+  #qrcodeBox canvas,
+  #qrcodeBox img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  #barcodeBox {
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .tracking-hero-section h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .tracking-hero-section p {
+    font-size: 0.9rem !important;
+  }
+
+  .card {
+    padding: 1.15rem !important;
+  }
+}
