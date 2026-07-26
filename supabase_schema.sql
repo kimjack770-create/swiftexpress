@@ -466,7 +466,7 @@ INSERT INTO public.cms_content (id, section_name, content) VALUES
     "company_name": "Swift Express Logistics",
     "slogan": "Delivering Excellence at the Speed of Light",
     "phone": "+1 (775) 757-0577",
-    "email": "support@swiftexpress.com",
+    "email": "support@swiftexpresslogix.com",
     "address": "742 Logistics Boulevard, Suite 400, New York, NY 10001",
     "working_hours": "Mon - Sat: 8:00 AM - 9:00 PM EST"
 }') ON CONFLICT (id) DO NOTHING;
