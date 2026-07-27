@@ -449,6 +449,7 @@
               <option value="Box">Box</option>
               <option value="Carton">Carton</option>
               <option value="Pallet">Pallet</option>
+              <option value="Safe Box">Safe Box</option>
             </select>
           </div>
           <div class="form-group">
@@ -586,6 +587,14 @@
         <button type="submit" class="btn btn-accent btn-lg" style="width: 100%;"><i class="fas fa-broadcast-tower"></i>
           Push Progress Update</button>
       </form>
+
+      <!-- Existing Tracking Events List -->
+      <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
+        <h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.04em;"><i class="fas fa-history"></i> EXISTING TRACKING UPDATES</h4>
+        <div id="adminEventsList" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+          <div class="text-muted" style="font-size:0.9rem;">Select a shipment to view its updates.</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -844,6 +853,12 @@
       document.getElementById('closeStatusModalBtn').onclick = () => statusModal.classList.remove('active');
       document.getElementById('updateStatusForm').onsubmit = async (e) => {
         e.preventDefault();
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalHTML = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
         const id = document.getElementById('targetShipmentId').value.trim();
         const status = document.getElementById('upNewStatus').value;
         const location = document.getElementById('upLocation').value.trim();
@@ -851,22 +866,30 @@
         const dateValue = document.getElementById('upDate').value;
         const timeValue = document.getElementById('upTime').value;
 
-        if (!id) {
-          showToast('Create the shipment first so it has a tracking record to update.', 'error');
-          return;
-        }
+        try {
+          if (!id) {
+            showToast('Create the shipment first so it has a tracking record to update.', 'error');
+            return;
+          }
 
-        const allShipments = await shipmentService.getAllShipments();
-        const targetShipment = allShipments.find(item => item.id === id || item.tracking_number === id);
-        if (!targetShipment) {
-          showToast('That shipment was not found. Create it first, then update the tracking status.', 'error');
-          return;
-        }
+          const allShipments = await shipmentService.getAllShipments();
+          const targetShipment = allShipments.find(item => item.id === id || item.tracking_number === id);
+          if (!targetShipment) {
+            showToast('That shipment was not found. Create it first, then update the tracking status.', 'error');
+            return;
+          }
 
-        await shipmentService.updateShipmentStatus(id, status, location, desc, 'Admin', dateValue, timeValue);
-        showToast('Progress update saved & pushed in real-time!', 'success');
-        statusModal.classList.remove('active');
-        await refreshShipmentsTable();
+          await shipmentService.updateShipmentStatus(id, status, location, desc, 'Admin', dateValue, timeValue);
+          showToast('Progress update saved & pushed in real-time!', 'success');
+          document.getElementById('updateStatusForm').reset();
+          await loadAdminEvents(id);
+          await refreshShipmentsTable();
+        } catch (err) {
+          showToast('Error saving update: ' + err.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+        }
       };
 
       // CMS Hero Form Listener
@@ -924,9 +947,11 @@
 
       // Attach button events
       document.querySelectorAll('.update-status-btn').forEach(btn => {
-        btn.onclick = () => {
-          document.getElementById('targetShipmentId').value = btn.getAttribute('data-id');
+        btn.onclick = async () => {
+          const shipId = btn.getAttribute('data-id');
+          document.getElementById('targetShipmentId').value = shipId;
           document.getElementById('statusUpdateModal').classList.add('active');
+          await loadAdminEvents(shipId);
         };
       });
 
@@ -936,6 +961,54 @@
           if (sh) generatePrintableShippingLabel(sh);
         };
       });
+    }
+
+    async function loadAdminEvents(shipmentId) {
+      const container = document.getElementById('adminEventsList');
+      if (!container) return;
+      container.innerHTML = '<div class="text-muted" style="font-size:0.85rem;">Loading updates...</div>';
+      try {
+        const events = await shipmentService.getTrackingEvents(shipmentId);
+        if (!events || events.length === 0) {
+          container.innerHTML = '<div class="text-muted" style="font-size:0.85rem;">No tracking updates yet.</div>';
+          return;
+        }
+        // Sort latest first for admin view
+        const sorted = events.slice().sort((a, b) => new Date(b.timestamp || b.event_timestamp || 0) - new Date(a.timestamp || a.event_timestamp || 0));
+        container.innerHTML = sorted.map(ev => {
+          const ts = ev.timestamp || ev.event_timestamp || '';
+          const dateStr = ts ? new Date(ts).toLocaleString() : 'N/A';
+          return `
+            <div class="admin-event-row" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary);">${ev.status || 'Update'}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin: 0.1rem 0;">${dateStr} — ${ev.location || '—'}</div>
+                <div style="font-size: 0.82rem;">${ev.description || ''}</div>
+              </div>
+              <button class="btn-icon delete-event-btn" data-event-id="${ev.id}" data-shipment-id="${shipmentId}" title="Delete this update" style="color: var(--danger); flex-shrink: 0; margin-top: 0.1rem;">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>`;
+        }).join('');
+
+        container.querySelectorAll('.delete-event-btn').forEach(btn => {
+          btn.onclick = async () => {
+            const evId = btn.getAttribute('data-event-id');
+            const sId = btn.getAttribute('data-shipment-id');
+            if (!confirm('Delete this tracking update? This cannot be undone.')) return;
+            try {
+              await shipmentService.deleteTrackingEvent(evId);
+              showToast('Tracking update deleted.', 'success');
+              await loadAdminEvents(sId);
+              await refreshShipmentsTable();
+            } catch (err) {
+              showToast('Error deleting update: ' + err.message, 'error');
+            }
+          };
+        });
+      } catch (err) {
+        container.innerHTML = '<div class="text-muted" style="font-size:0.85rem;">Could not load updates.</div>';
+      }
     }
 
     async function refreshQuotesTable() {

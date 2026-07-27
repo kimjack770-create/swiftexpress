@@ -219,6 +219,20 @@ class ShipmentService {
       console.warn('Supabase delete notice:', err.message);
     }
   }
+
+  async deleteTrackingEvent(eventId) {
+    if (!dbEngine.client) return;
+    try {
+      const { error } = await dbEngine.client
+        .from('tracking_events')
+        .delete()
+        .eq('id', eventId);
+      if (error) throw new Error(error.message);
+    } catch (err) {
+      console.warn('Supabase delete tracking event notice:', err.message);
+      throw err;
+    }
+  }
 }
 
 export const shipmentService = new ShipmentService();

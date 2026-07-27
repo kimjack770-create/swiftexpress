@@ -35,6 +35,14 @@ export function renderHeader() {
         </ul>
 
         <div class="nav-actions">
+          <!-- Language Selector -->
+          <div class="lang-selector-wrap" id="langSelectorWrap" style="position: relative; display: inline-flex; align-items: center;">
+            <button class="theme-toggle-btn" id="langToggleBtn" title="Translate Page" style="gap:0.3rem;">
+              <i class="fas fa-globe"></i>
+            </button>
+            <div id="google_translate_element" style="position: absolute; top: 110%; right: 0; min-width: 180px; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.2s;"></div>
+          </div>
+
           <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
             <i class="fas fa-moon"></i>
           </button>
@@ -46,6 +54,39 @@ export function renderHeader() {
       </div>
     </nav>
   `;
+
+  // Inject Google Translate script once
+  if (!document.getElementById('google-translate-script')) {
+    window.googleTranslateElementInit = function () {
+      new window.google.translate.TranslateElement(
+        { pageLanguage: 'en', layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE },
+        'google_translate_element'
+      );
+    };
+    const gScript = document.createElement('script');
+    gScript.id = 'google-translate-script';
+    gScript.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    gScript.async = true;
+    document.head.appendChild(gScript);
+  }
+
+  // Language Toggle Listener
+  const langBtn = document.getElementById('langToggleBtn');
+  const translateEl = document.getElementById('google_translate_element');
+  let langOpen = false;
+  if (langBtn && translateEl) {
+    langBtn.onclick = (e) => {
+      e.stopPropagation();
+      langOpen = !langOpen;
+      translateEl.style.opacity = langOpen ? '1' : '0';
+      translateEl.style.pointerEvents = langOpen ? 'all' : 'none';
+    };
+    document.addEventListener('click', () => {
+      langOpen = false;
+      translateEl.style.opacity = '0';
+      translateEl.style.pointerEvents = 'none';
+    });
+  }
 
   // Theme Toggle Listener
   const themeBtn = document.getElementById('themeToggleBtn');
