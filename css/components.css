@@ -126,6 +126,19 @@
   color: var(--primary);
 }
 
+/* Mobile Drawer Header & Backdrop (hidden on desktop) */
+.nav-menu-header {
+  display: none;
+}
+
+.nav-close-btn {
+  display: none;
+}
+
+.nav-backdrop {
+  display: none;
+}
+
 .theme-toggle-btn:hover {
   background: var(--primary-light);
   color: var(--primary);

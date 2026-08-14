@@ -117,14 +117,78 @@ button, input, select, textarea, a {
     border-bottom: 1px solid var(--border);
   }
 
-  /* Language Selector Dropdown */
+  /* Mobile Drawer Header (close/cancel control) */
+  .nav-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: 1rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-menu-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-main);
+  }
+
+  .nav-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    color: var(--text-main);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .nav-close-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+
+  /* Backdrop behind the open mobile drawer */
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 998;
+  }
+
+  .nav-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Lock background scroll while the drawer is open */
+  body.nav-open {
+    overflow: hidden;
+  }
+
+  /* Language Selector Dropdown - anchor to the viewport, not the
+     cramped nav-actions row, so it can never render off-screen */
   #google_translate_element {
-    right: -0.5rem !important;
-    left: auto;
-    max-width: calc(100vw - 2rem);
+    position: fixed !important;
+    top: 68px !important;
+    right: 1rem !important;
+    left: 1rem !important;
+    width: auto !important;
+    max-width: none !important;
   }
 
   #google_translate_element .goog-te-gadget-simple {
+    width: 100%;
+    box-sizing: border-box;
     font-size: 1rem;
     padding: 0.6rem 0.75rem;
   }

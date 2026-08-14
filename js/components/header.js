@@ -23,6 +23,12 @@ export function renderHeader() {
         </a>
 
         <ul class="nav-menu" id="navMenu">
+          <li class="nav-menu-header">
+            <span class="nav-menu-title">Menu</span>
+            <button class="nav-close-btn" id="navCloseBtn" aria-label="Close navigation menu">
+              <i class="fas fa-times"></i>
+            </button>
+          </li>
           <li><a href="${buildSiteHref('index.html')}" class="nav-link ${currentPath.includes('index.html') || currentPath === '/' ? 'active' : ''}">Home</a></li>
           <li><a href="${buildSiteHref('about.html')}" class="nav-link ${currentPath.includes('about.html') ? 'active' : ''}">About Us</a></li>
           <li><a href="${buildSiteHref('services.html')}" class="nav-link ${currentPath.includes('services.html') ? 'active' : ''}">Services</a></li>
@@ -52,6 +58,7 @@ export function renderHeader() {
           </button>
         </div>
       </div>
+      <div class="nav-backdrop" id="navBackdrop"></div>
     </nav>
   `;
 
@@ -108,9 +115,12 @@ export function renderHeader() {
   // Mobile Menu Drawer Listener
   const mobileBtn = document.getElementById('mobileMenuBtn');
   const navMenu = document.getElementById('navMenu');
+  const navCloseBtn = document.getElementById('navCloseBtn');
+  const navBackdrop = document.getElementById('navBackdrop');
 
   const closeMenu = () => {
     navMenu.classList.remove('open');
+    navBackdrop.classList.remove('open');
     mobileBtn.setAttribute('aria-expanded', 'false');
     mobileBtn.innerHTML = '<i class="fas fa-bars"></i>';
     document.body.classList.remove('nav-open');
@@ -118,6 +128,7 @@ export function renderHeader() {
 
   const openMenu = () => {
     navMenu.classList.add('open');
+    navBackdrop.classList.add('open');
     mobileBtn.setAttribute('aria-expanded', 'true');
     mobileBtn.innerHTML = '<i class="fas fa-times"></i>';
     document.body.classList.add('nav-open');
@@ -131,6 +142,9 @@ export function renderHeader() {
     }
   };
 
+  navCloseBtn.onclick = () => closeMenu();
+  navBackdrop.onclick = () => closeMenu();
+
   navMenu.querySelectorAll('a').forEach(link => {
     link.onclick = () => closeMenu();
   });
@@ -139,5 +153,9 @@ export function renderHeader() {
     if (!navMenu.contains(event.target) && !mobileBtn.contains(event.target)) {
       closeMenu();
     }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMenu();
   });
 }
