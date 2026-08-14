@@ -59,7 +59,11 @@ export function renderHeader() {
   if (!document.getElementById('google-translate-script')) {
     window.googleTranslateElementInit = function () {
       new window.google.translate.TranslateElement(
-        { pageLanguage: 'en', layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE },
+        {
+          pageLanguage: 'en',
+          includedLanguages: 'en,es,fr,de,it,pt,zh-CN,zh-TW,ja,ko,ar,ru,hi,tr,nl,pl,sv,vi,th,id',
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
+        },
         'google_translate_element'
       );
     };

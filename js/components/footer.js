@@ -68,7 +68,6 @@ Chattanooga, TN 37421 USA</li>
           <div style="display: flex; gap: 1.5rem;">
             <a href="${buildSiteHref('privacy.html')}">Privacy Policy</a>
             <a href="${buildSiteHref('terms.html')}">Terms & Conditions</a>
-            <a href="${buildSiteHref('admin/index.html')}">Admin Portal</a>
           </div>
         </div>
       </div>

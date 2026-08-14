@@ -117,6 +117,18 @@ button, input, select, textarea, a {
     border-bottom: 1px solid var(--border);
   }
 
+  /* Language Selector Dropdown */
+  #google_translate_element {
+    right: -0.5rem !important;
+    left: auto;
+    max-width: calc(100vw - 2rem);
+  }
+
+  #google_translate_element .goog-te-gadget-simple {
+    font-size: 1rem;
+    padding: 0.6rem 0.75rem;
+  }
+
   /* Grid Conversions */
   .grid-2, .grid-3, .grid-4 {
     grid-template-columns: 1fr !important;

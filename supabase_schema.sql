@@ -127,6 +127,21 @@ ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS shipping_method VARCHAR(10
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS product VARCHAR(255);
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS pickup_time VARCHAR(100);
 
+-- Drop old auto-generated status check (if it exists) and replace with the full allowed values list.
+-- This covers all statuses used by the admin panel dropdown.
+ALTER TABLE public.shipments DROP CONSTRAINT IF EXISTS shipments_status_check;
+ALTER TABLE public.shipments
+  ADD CONSTRAINT shipments_status_check
+  CHECK (status IN (
+    'In Transit',
+    'Pending',
+    'On Hold',
+    'Picked Up',
+    'Customs Clearance',
+    'Out for Delivery',
+    'Delivered'
+  ));
+
 -- --------------------------------------------------------
 -- 5. TRACKING EVENTS TABLE
 -- --------------------------------------------------------
