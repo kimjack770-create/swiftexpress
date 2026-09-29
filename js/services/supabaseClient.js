@@ -17,7 +17,7 @@ class DataStorageEngine {
     this.seedInitialMockData();
 
     // Check if Supabase JS SDK is present on window and valid credentials exist
-    if (window.supabase && SUPABASE_CONFIG.SUPABASE_URL.startsWith('https://') && !SUPABASE_CONFIG.SUPABASE_URL.includes('demo')) {
+    if (typeof window !== 'undefined' && window.supabase && SUPABASE_CONFIG.SUPABASE_URL.startsWith('https://') && !SUPABASE_CONFIG.SUPABASE_URL.includes('demo')) {
       try {
         this.client = window.supabase.createClient(SUPABASE_CONFIG.SUPABASE_URL, SUPABASE_CONFIG.SUPABASE_ANON_KEY);
         this.isRealSupabase = true;
@@ -37,6 +37,9 @@ class DataStorageEngine {
   }
 
   seedInitialMockData() {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined' || !localStorage.getItem) {
+      return;
+    }
     const primaryShipments = localStorage.getItem(this.storageKey('shipments'));
     const backupShipments = localStorage.getItem(this.backupKey('shipments'));
 

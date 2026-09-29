@@ -126,6 +126,8 @@ ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS dispatch_date DATE DEFAULT
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS shipping_method VARCHAR(100) DEFAULT 'Air transport';
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS product VARCHAR(255);
 ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS pickup_time VARCHAR(100);
+ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS created_by VARCHAR(255) DEFAULT 'geniusmaxx00@gmail.com';
+CREATE INDEX IF NOT EXISTS idx_shipments_created_by ON public.shipments(created_by);
 
 -- Drop old auto-generated status check (if it exists) and replace with the full allowed values list.
 -- This covers all statuses used by the admin panel dropdown.
@@ -505,3 +507,47 @@ INSERT INTO public.shipments (
     'Swift Express Logistics', 'FedEx Express', 'Box', 18.00, 2, 'Air Freight', 'Customs Clearance',
     'San Francisco, USA', 'Tokyo, Japan', 'Narita Customs Facility, Tokyo', 35.7720, 140.3929, '2026-07-22', '2026-07-26', 'Contains electronic testing equipment.', 320.00, 'Paid'
 ) ON CONFLICT (tracking_number) DO NOTHING;
+
+-- ========================================================
+-- SUPABASE STORAGE BUCKET: package-images
+-- ========================================================
+-- Run this in the Supabase SQL Editor (requires storage schema access).
+-- Alternatively create the bucket manually in the Supabase Dashboard →
+--   Storage → New Bucket → name: "package-images" → Public: ON
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'package-images',
+  'package-images',
+  true,                        -- public bucket (images viewable without auth)
+  5242880,                     -- 5 MB max per file
+  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
+) ON CONFLICT (id) DO NOTHING;
+
+-- Allow anon (and authenticated) users to upload images
+-- NOTE: Admin panel uses localStorage auth (not Supabase Auth), so requests
+-- arrive as 'anon'. Policy is scoped to this bucket only.
+DROP POLICY IF EXISTS "Admins can upload package images" ON storage.objects;
+CREATE POLICY "Admins can upload package images"
+ON storage.objects
+FOR INSERT
+TO anon, authenticated
+WITH CHECK (bucket_id = 'package-images');
+
+-- Allow anyone to read/view images (needed for public tracking page)
+DROP POLICY IF EXISTS "Public read access for package images" ON storage.objects;
+CREATE POLICY "Public read access for package images"
+ON storage.objects
+FOR SELECT
+TO public
+USING (bucket_id = 'package-images');
+
+-- Allow anon/authenticated users to delete images
+DROP POLICY IF EXISTS "Admins can delete package images" ON storage.objects;
+CREATE POLICY "Admins can delete package images"
+ON storage.objects
+FOR DELETE
+TO anon, authenticated
+USING (bucket_id = 'package-images');
+
+

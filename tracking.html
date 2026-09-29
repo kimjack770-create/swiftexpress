@@ -145,7 +145,18 @@
               </div>
             </div>
 
-            <!-- Address Specs Card -->
+            <!-- Package Image Card (shown only when image exists) -->
+            <div id="resPackageImageCard" class="card" style="margin-bottom: 1.5rem; display:none;">
+              <h3 style="margin-bottom: 0.85rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                <i class="fas fa-image text-primary"></i> Package Photo
+              </h3>
+              <a id="resPackageImageLink" href="#" target="_blank">
+                <img id="resPackageImage" src="" alt="Package photo"
+                  style="width:100%;border-radius:var(--radius-sm);object-fit:cover;max-height:220px;border:2px solid var(--border);cursor:zoom-in;"
+                  onerror="document.getElementById('resPackageImageCard').style.display='none'">
+              </a>
+              <p class="text-muted" style="font-size:0.78rem;margin-top:0.5rem;text-align:center;">Click image to view full size</p>
+            </div>
             <div class="card" style="margin-bottom: 1.5rem;">
               <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">Sender & Receiver</h3>
               
@@ -188,7 +199,7 @@
   <script type="module">
     import { renderHeader } from './js/components/header.js';
     import { renderFooter } from './js/components/footer.js';
-    import { shipmentService } from './js/services/shipmentService.js';
+    import { shipmentService, getShipmentImage } from './js/services/shipmentService.js';
     import { getStatusBadge, formatDate } from './js/utils/formatters.js';
     import { renderPackageMap } from './js/components/map.js';
     import { generatePrintableShippingLabel } from './js/utils/pdfLabelGenerator.js';
@@ -255,6 +266,19 @@
         document.getElementById('resCommentBox').style.display = 'none';
       }
 
+      // Package image
+      const imgUrl = getShipmentImage(shipment);
+      const imgCard = document.getElementById('resPackageImageCard');
+      const imgEl = document.getElementById('resPackageImage');
+      const imgLink = document.getElementById('resPackageImageLink');
+      if (imgUrl) {
+        imgEl.src = imgUrl;
+        imgLink.href = imgUrl;
+        imgCard.style.display = 'block';
+      } else {
+        imgCard.style.display = 'none';
+      }
+
       document.getElementById('resSenderName').textContent = shipment.sender_name || 'N/A';
       document.getElementById('resSenderPhone').textContent = `${shipment.sender_phone || 'N/A'} | ${shipment.sender_email || ''}`.trim();
       document.getElementById('resOrigin').textContent = shipment.origin || 'Pending';
@@ -281,17 +305,29 @@
             <p>No tracking events recorded yet. Check back shortly.</p>
           </div>`;
       } else {
-        timelineContainer.innerHTML = sortedEvents.map((ev, idx) => `
+        timelineContainer.innerHTML = sortedEvents.map((ev, idx) => {
+          let rawDesc = ev.description || 'Shipment activity recorded.';
+          let evImgHtml = '';
+          const evImgMatch = rawDesc.match(/\[image:([^\]]+)\]/i);
+          if (evImgMatch && evImgMatch[1]) {
+            const evImgUrl = evImgMatch[1].trim();
+            evImgHtml = `<a href="${evImgUrl}" target="_blank" style="display:inline-block;margin-top:0.6rem;">
+              <img src="${evImgUrl}" alt="Shipment photo" style="max-height:120px;max-width:240px;border-radius:8px;border:2px solid var(--border);object-fit:cover;" onerror="this.parentElement.style.display='none'">
+            </a>`;
+            rawDesc = rawDesc.replace(evImgMatch[0], '').trim();
+          }
+          return `
           <div class="timeline-item active">
             <div class="timeline-dot"></div>
             <div class="timeline-content">
               <div class="timeline-time"><i class="fas fa-clock"></i> ${formatDate(ev.timestamp || ev.event_timestamp || new Date().toISOString())} — ${ev.location || 'Processing'}</div>
               <div class="timeline-title">${ev.status || 'Status update'}</div>
-              <div class="text-muted" style="font-size: 0.9rem;">${ev.description || 'Shipment activity recorded.'}</div>
+              <div class="text-muted" style="font-size: 0.9rem;">${rawDesc}</div>
+              ${evImgHtml}
               <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Updated by: ${ev.updated_by || 'System'}</div>
             </div>
-          </div>
-        `).join('');
+          </div>`;
+        }).join('');
       }
 
       // Map rendering

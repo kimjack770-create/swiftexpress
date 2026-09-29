@@ -28,20 +28,19 @@
 
   <!-- Admin Login Overlay -->
   <div id="adminLoginModal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 420px;">
-      <h2 style="color: var(--primary); margin-bottom: 0.5rem;"><i class="fas fa-shield-alt"></i> Admin Portal Sign In
+    <div class="modal-box" style="max-width: 440px;">
+      <h2 style="color: var(--primary); margin-bottom: 0.35rem;"><i class="fas fa-shield-alt"></i> Admin Portal Sign In
       </h2>
-      <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.9rem;">Sign in with administrator credentials.
-      </p>
+      <p class="text-muted" style="margin-bottom: 1.25rem; font-size: 0.88rem;">Sign in to access your isolated administrative console.</p>
 
       <form id="adminLoginForm">
         <div class="form-group">
           <label class="form-label">Admin Email</label>
-          <input type="email" id="admEmail" class="form-control" value="admin@swiftexpress.com" required>
+          <input type="email" id="admEmail" class="form-control" placeholder="Enter admin email" required>
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
-          <input type="password" id="admPassword" class="form-control" value="admin123" required>
+          <input type="password" id="admPassword" class="form-control" placeholder="Enter password" required>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;"><i class="fas fa-key"></i>
           Authenticate Console</button>
@@ -99,16 +98,19 @@
           <h3 id="admTabHeading">Console Overview</h3>
         </div>
 
-        <div class="topbar-actions">
-          <button class="btn btn-accent btn-sm" id="quickNewShipmentBtn"><i class="fas fa-plus"></i> Create
-            Shipment</button>
+        <div class="topbar-actions" style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="workspace-pill" id="admWorkspacePill" style="display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; background: rgba(0, 87, 184, 0.08); border: 1px solid var(--border); border-radius: 50px; font-size: 0.78rem; font-weight: 600; color: var(--primary);">
+            <i class="fas fa-lock text-accent"></i> <span id="admWorkspaceText">Isolated Workspace</span>
+          </div>
 
-          <div class="user-profile-badge">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
-              class="user-avatar" alt="Admin">
+          <button class="btn btn-accent btn-sm" id="quickNewShipmentBtn"><i class="fas fa-plus"></i> Create Shipment</button>
+
+          <div class="user-profile-badge" id="admUserProfileBadge">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+              class="user-avatar" id="admAvatarDisplay" alt="Admin">
             <div>
               <div class="font-bold" id="admNameDisplay">Super Admin</div>
-              <div class="text-muted" style="font-size: 0.75rem;">System Manager</div>
+              <div class="text-muted" style="font-size: 0.75rem;" id="admRoleDisplay">System Manager</div>
             </div>
           </div>
         </div>
@@ -532,6 +534,23 @@
             placeholder="Admin notes, handling instructions..."></textarea>
         </div>
 
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-image" style="color:var(--accent);"></i> Package / Proof Photo <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+          <!-- Hidden field stores the final Supabase URL -->
+          <input type="hidden" id="nsPackageImage">
+          <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+            <label for="nsPackageImageFile" class="btn btn-outline btn-sm" style="cursor:pointer;margin:0;">
+              <i class="fas fa-camera"></i> Choose from Gallery
+              <input type="file" id="nsPackageImageFile" accept="image/*" capture="environment" style="display:none;">
+            </label>
+            <span id="nsPackageImageStatus" class="text-muted" style="font-size:0.82rem;"></span>
+          </div>
+          <div id="nsPackageImagePreview" style="margin-top:0.7rem;display:none;position:relative;display:inline-block;">
+            <img src="" alt="Package preview" style="max-height:140px;max-width:100%;border-radius:var(--radius-sm);border:2px solid var(--border);object-fit:cover;display:block;">
+            <button type="button" id="nsPackageImageRemove" title="Remove image" style="position:absolute;top:-8px;right:-8px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+
         <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;"><i
             class="fas fa-check-circle"></i> Create Shipment & Save Record</button>
       </form>
@@ -584,6 +603,22 @@
             required></textarea>
         </div>
 
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-camera" style="color:var(--accent);"></i> Status / Delivery Proof Photo <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+          <input type="hidden" id="upStatusImage">
+          <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+            <label for="upStatusImageFile" class="btn btn-outline btn-sm" style="cursor:pointer;margin:0;">
+              <i class="fas fa-camera"></i> Choose from Gallery
+              <input type="file" id="upStatusImageFile" accept="image/*" capture="environment" style="display:none;">
+            </label>
+            <span id="upStatusImageStatus" class="text-muted" style="font-size:0.82rem;"></span>
+          </div>
+          <div id="upStatusImagePreview" style="margin-top:0.7rem;display:none;position:relative;display:inline-block;">
+            <img src="" alt="Status photo preview" style="max-height:120px;max-width:100%;border-radius:var(--radius-sm);border:2px solid var(--border);object-fit:cover;display:block;">
+            <button type="button" id="upStatusImageRemove" title="Remove image" style="position:absolute;top:-8px;right:-8px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+
         <button type="submit" class="btn btn-accent btn-lg" style="width: 100%;"><i class="fas fa-broadcast-tower"></i>
           Push Progress Update</button>
       </form>
@@ -624,6 +659,7 @@
   <script type="module">
     import { authService } from '../js/services/authService.js';
     import { shipmentService } from '../js/services/shipmentService.js';
+    import { uploadPackageImage } from '../js/services/storageService.js';
     import { quoteService } from '../js/services/quoteService.js';
     import { driverService } from '../js/services/driverService.js';
     import { cmsService } from '../js/services/cmsService.js';
@@ -659,6 +695,7 @@
       const loginModal = document.getElementById('adminLoginModal');
       const dashApp = document.getElementById('adminDashboardApp');
 
+
       if (!authService.isAdmin()) {
         loginModal.classList.add('active');
         dashApp.style.display = 'none';
@@ -681,11 +718,27 @@
 
       document.getElementById('admLogoutBtn').onclick = (e) => {
         e.preventDefault();
-        authService.logout();
+        localStorage.removeItem('sel_current_user');
+        showToast('Logged out of admin workspace.', 'info');
+        setTimeout(() => location.reload(), 300);
       };
     });
 
     async function initAdminConsole() {
+      // Set Active Admin Profile and Isolation Indicators
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        const nameEl = document.getElementById('admNameDisplay');
+        const roleEl = document.getElementById('admRoleDisplay');
+        const avatarEl = document.getElementById('admAvatarDisplay');
+        const wsTextEl = document.getElementById('admWorkspaceText');
+
+        if (nameEl) nameEl.textContent = currentUser.full_name || 'Admin';
+        if (roleEl) roleEl.textContent = `${currentUser.role || 'Admin'} • Isolated`;
+        if (avatarEl && currentUser.avatar_url) avatarEl.src = currentUser.avatar_url;
+        if (wsTextEl) wsTextEl.textContent = currentUser.workspace_label || `${currentUser.email.split('@')[0]} (Isolated)`;
+      }
+
       // Populate Country Dropdowns
       const fromSel = document.getElementById('nsFromCountry');
       const toSel = document.getElementById('nsToCountry');
@@ -701,8 +754,6 @@
       const estArrival = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       document.getElementById('nsDispatchDate').value = today;
       document.getElementById('nsArrivalDate').value = estArrival;
-
-      // Regenerate button is now also handled above in openCreateModal
 
       // Sidebar Toggle
       const toggleSidebar = () => {
@@ -785,12 +836,72 @@
         document.getElementById('nsTrackingCode').value = generateTrackingNumber('SEL');
       };
 
+      // ── Package image upload (Create Shipment form) ──────────────────────────
+      function showImagePreview(previewEl, url) {
+        const img = previewEl.querySelector('img');
+        img.src = url;
+        previewEl.style.display = url ? 'inline-block' : 'none';
+      }
+
+      document.getElementById('nsPackageImageFile').addEventListener('change', async function() {
+        const file = this.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('nsPackageImageStatus');
+        const preview = document.getElementById('nsPackageImagePreview');
+        const hiddenInput = document.getElementById('nsPackageImage');
+        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading…';
+        preview.style.display = 'none';
+        try {
+          const url = await uploadPackageImage(file, 'shipments');
+          hiddenInput.value = url;
+          statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:var(--success);"></i> Uploaded!';
+          showImagePreview(preview, url);
+        } catch (err) {
+          statusEl.innerHTML = `<span style="color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> ${err.message}</span>`;
+        }
+      });
+
+      document.getElementById('nsPackageImageRemove').addEventListener('click', function() {
+        document.getElementById('nsPackageImage').value = '';
+        document.getElementById('nsPackageImageFile').value = '';
+        document.getElementById('nsPackageImageStatus').textContent = '';
+        document.getElementById('nsPackageImagePreview').style.display = 'none';
+      });
+
+      // ── Status image upload (Status Update modal) ─────────────────────────────
+      document.getElementById('upStatusImageFile').addEventListener('change', async function() {
+        const file = this.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('upStatusImageStatus');
+        const preview = document.getElementById('upStatusImagePreview');
+        const hiddenInput = document.getElementById('upStatusImage');
+        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading…';
+        preview.style.display = 'none';
+        try {
+          const url = await uploadPackageImage(file, 'status-updates');
+          hiddenInput.value = url;
+          statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:var(--success);"></i> Uploaded!';
+          showImagePreview(preview, url);
+        } catch (err) {
+          statusEl.innerHTML = `<span style="color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> ${err.message}</span>`;
+        }
+      });
+
+      document.getElementById('upStatusImageRemove').addEventListener('click', function() {
+        document.getElementById('upStatusImage').value = '';
+        document.getElementById('upStatusImageFile').value = '';
+        document.getElementById('upStatusImageStatus').textContent = '';
+        document.getElementById('upStatusImagePreview').style.display = 'none';
+      });
+
       document.getElementById('newShipmentForm').onsubmit = async (e) => {
         e.preventDefault();
         try {
+          const currentUser = authService.getCurrentUser();
           const trackingCode = document.getElementById('nsTrackingCode').value.trim();
           const data = {
             ...(trackingCode ? { tracking_number: trackingCode } : {}),
+            created_by: currentUser?.email || 'geniusmaxx00@gmail.com',
             sender_name: document.getElementById('nsSenderName').value,
             sender_email: document.getElementById('nsSenderEmail').value,
             sender_phone: document.getElementById('nsSenderPhone').value,
@@ -817,6 +928,7 @@
             quantity: parseInt(document.getElementById('nsQuantity').value) || 1,
             weight_kg: parseFloat(document.getElementById('nsWeight').value) || 1.0,
             comment: document.getElementById('nsComment').value,
+            package_image: document.getElementById('nsPackageImage').value.trim(),
             service_type: document.getElementById('nsShippingMethod').value,
             shipping_cost: Math.round(parseFloat(document.getElementById('nsWeight').value) * 35) || 85.00,
             status: "In Transit"
@@ -865,6 +977,7 @@
         const desc = document.getElementById('upDescription').value.trim();
         const dateValue = document.getElementById('upDate').value;
         const timeValue = document.getElementById('upTime').value;
+        const statusImage = document.getElementById('upStatusImage').value.trim();
 
         try {
           if (!id) {
@@ -872,6 +985,7 @@
             return;
           }
 
+          const currentUser = authService.getCurrentUser();
           const allShipments = await shipmentService.getAllShipments();
           const targetShipment = allShipments.find(item => item.id === id || item.tracking_number === id);
           if (!targetShipment) {
@@ -879,9 +993,13 @@
             return;
           }
 
-          await shipmentService.updateShipmentStatus(id, status, location, desc, 'Admin', dateValue, timeValue);
+          await shipmentService.updateShipmentStatus(id, status, location, desc, currentUser?.full_name || 'Admin', dateValue, timeValue, statusImage);
           showToast('Progress update saved & pushed in real-time!', 'success');
           document.getElementById('updateStatusForm').reset();
+          document.getElementById('upStatusImage').value = '';
+          document.getElementById('upStatusImageFile').value = '';
+          document.getElementById('upStatusImageStatus').textContent = '';
+          document.getElementById('upStatusImagePreview').style.display = 'none';
           await loadAdminEvents(id);
           await refreshShipmentsTable();
         } catch (err) {
@@ -897,20 +1015,70 @@
         e.preventDefault();
         await cmsService.updateCMSContent('hero', 'Homepage Hero', {
           headline: document.getElementById('cmsHeadline').value,
-          subheadline: document.getElementById('cmsSubheadline').value
+          subheadline: document.getElementById('cmsHeadline').value
         });
         showToast('Website Hero CMS updated!', 'success');
       };
     }
 
+    function updateAdminKpis(shipments) {
+      const total = shipments.length;
+      const inTransit = shipments.filter(s => ['In Transit', 'Picked Up', 'Out for Delivery', 'Customs Clearance'].includes(s.status)).length;
+      const delivered = shipments.filter(s => s.status === 'Delivered').length;
+      const totalRevenue = shipments.reduce((sum, s) => sum + (parseFloat(s.shipping_cost) || 0), 0);
+
+      const kpiTotalEl = document.getElementById('kpiTotalShipments');
+      const kpiTransitEl = document.getElementById('kpiInTransit');
+      const kpiDeliveredEl = document.getElementById('kpiDelivered');
+      const kpiRevEl = document.getElementById('kpiRevenue');
+
+      if (kpiTotalEl) kpiTotalEl.textContent = total;
+      if (kpiTransitEl) kpiTransitEl.textContent = inTransit;
+      if (kpiDeliveredEl) kpiDeliveredEl.textContent = delivered;
+      if (kpiRevEl) kpiRevEl.textContent = `$${totalRevenue.toLocaleString()}`;
+    }
+
     async function refreshShipmentsTable(prependShipment = null) {
-      const shipments = await shipmentService.getAllShipments();
+      const currentUser = authService.getCurrentUser();
+      const currentEmail = currentUser ? currentUser.email : null;
+      const shipments = await shipmentService.getShipmentsForAdmin(currentEmail);
       const mergedShipments = prependShipment
         ? [prependShipment, ...shipments.filter(s => s.id !== prependShipment.id && s.tracking_number !== prependShipment.tracking_number)]
         : shipments;
       const tbody = document.getElementById('admShipmentsTableBody');
 
-      tbody.innerHTML = mergedShipments.map(s => `
+      // Dynamically compute and display metrics for this admin's isolated workspace
+      updateAdminKpis(mergedShipments);
+
+      if (!mergedShipments || mergedShipments.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem 1.5rem;">
+              <div style="width: 60px; height: 60px; background: rgba(0, 87, 184, 0.08); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1rem auto;">
+                <i class="fas fa-boxes"></i>
+              </div>
+              <h4 style="margin-bottom: 0.35rem; color: var(--text-main);">No Shipments in Your Workspace</h4>
+              <p class="text-muted" style="font-size: 0.88rem; max-width: 440px; margin: 0 auto 1.25rem auto;">
+                Admin shipment isolation is active. Other administrators cannot view your packages, and you only see shipments belonging to <strong>${currentEmail || 'your account'}</strong>.
+              </p>
+              <button class="btn btn-primary btn-sm" id="emptyStateCreateBtn"><i class="fas fa-plus"></i> Create New Shipment</button>
+            </td>
+          </tr>
+        `;
+        const emptyBtn = document.getElementById('emptyStateCreateBtn');
+        if (emptyBtn) emptyBtn.onclick = () => document.getElementById('quickNewShipmentBtn').click();
+        return;
+      }
+
+      const { getShipmentImage } = await import('../js/services/shipmentService.js');
+      tbody.innerHTML = mergedShipments.map(s => {
+        const imgUrl = getShipmentImage(s);
+        const imgHtml = imgUrl
+          ? `<a href="${imgUrl}" target="_blank" title="View package image" style="display:block;margin-top:0.3rem;">
+               <img src="${imgUrl}" alt="Package" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:2px solid var(--border);vertical-align:middle;" onerror="this.style.display='none'">
+             </a>`
+          : `<span class="text-muted" style="font-size:0.75rem;">No image</span>`;
+        return `
         <tr>
           <td>
             <div class="font-bold text-primary">${s.tracking_number}</div>
@@ -929,6 +1097,7 @@
           <td>
             <span class="badge badge-primary">${s.package_type || 'Box'}</span>
             <div class="text-muted" style="font-size:0.8rem; margin-top: 0.2rem;">Qty: ${s.quantity || 1} | Wt: ${s.weight_kg}kg</div>
+            ${imgHtml}
           </td>
           <td>
             <div style="font-size:0.8rem;"><strong>Send:</strong> ${s.dispatch_date || 'Today'}</div>
@@ -942,8 +1111,8 @@
               <button class="btn-icon print-label-btn" data-id="${s.id}" title="Print Label"><i class="fas fa-print"></i></button>
             </div>
           </td>
-        </tr>
-      `).join('');
+        </tr>`;
+      }).join('');
 
       // Attach button events
       document.querySelectorAll('.update-status-btn').forEach(btn => {
@@ -978,12 +1147,24 @@
         container.innerHTML = sorted.map(ev => {
           const ts = ev.timestamp || ev.event_timestamp || '';
           const dateStr = ts ? new Date(ts).toLocaleString() : 'N/A';
+          // Extract and render inline image from description [image:URL]
+          let rawDesc = ev.description || '';
+          let evImgHtml = '';
+          const evImgMatch = rawDesc.match(/\[image:([^\]]+)\]/i);
+          if (evImgMatch && evImgMatch[1]) {
+            const evImgUrl = evImgMatch[1].trim();
+            evImgHtml = `<a href="${evImgUrl}" target="_blank" style="display:inline-block;margin-top:0.4rem;">
+              <img src="${evImgUrl}" alt="Status photo" style="max-height:90px;max-width:200px;border-radius:6px;border:2px solid var(--border);object-fit:cover;" onerror="this.parentElement.style.display='none'">
+            </a>`;
+            rawDesc = rawDesc.replace(evImgMatch[0], '').trim();
+          }
           return `
             <div class="admin-event-row" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; display: flex; align-items: flex-start; gap: 0.75rem;">
               <div style="flex: 1; min-width: 0;">
                 <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary);">${ev.status || 'Update'}</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin: 0.1rem 0;">${dateStr} — ${ev.location || '—'}</div>
-                <div style="font-size: 0.82rem;">${ev.description || ''}</div>
+                <div style="font-size: 0.82rem;">${rawDesc}</div>
+                ${evImgHtml}
               </div>
               <button class="btn-icon delete-event-btn" data-event-id="${ev.id}" data-shipment-id="${shipmentId}" title="Delete this update" style="color: var(--danger); flex-shrink: 0; margin-top: 0.1rem;">
                 <i class="fas fa-trash-alt"></i>
